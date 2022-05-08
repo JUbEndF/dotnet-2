@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package TaskListGrpcServer.Protos;
+
+service TaskList {
+  rpc Work (Request) returns (Replies);
+}
+
+// ------------
+// Core Message
+// ------------
+
+message Task {
+  string nametask = 1;
+  string taskdescription = 2;
+  Status currentstate = 3;
+  string executor = 4;
+  repeated string tags = 5;
+}
+
+message Executor
+{
+	string name = 1;
+	string login = 2;
+}
+
+// -------
+// Request
+// -------
+
+message Request{
+	oneof request{
+		LoginRequest login = 1;
+		ListTaskRequest datarequest = 2;
+
+	}
+}
+
+message ListTaskRequest{
+
+}
+
+message LoginRequest {
+  string login = 1;
+}
+
+// -------
+// Replies
+// -------
+
+message Replies{
+	oneof reply{
+		ExaminationReply examinationreply = 1;
+		repeated string nametask = 2;
+		Task requestedtask = 3;
+		ListTaskReply list = 4;
+	}
+}
+
+message ListTaskReply {
+    message ListTask {
+        string nametask = 1;
+		string executor = 2;
+    }
+    repeated Inner list = 1;
+}
+
+message ExaminationReply {
+  bool success = 1;
+}
+
+enum Status {
+  NEW = 0;
+  ASSIGNED = 1;
+  DISCUSSION = 2;
+  COMPLETED = 3;
+  CLOSED = 4;
+}
