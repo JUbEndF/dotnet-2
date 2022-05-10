@@ -10,12 +10,20 @@ service TaskList {
 // Core Message
 // ------------
 
-message Task {
-  string nametask = 1;
-  string taskdescription = 2;
-  Status currentstate = 3;
-  string executor = 4;
-  repeated string tags = 5;
+message TaskProto {
+	int32 id = 1;
+	string name_task = 2;
+	string task_description = 3;
+	Status current_state = 4;
+	string executor = 5;
+	Tags tags = 6;
+}
+
+message Tags {
+    message Tag {
+
+    }
+    repeated Tag list_tag = 1;
 }
 
 message Executor
@@ -31,7 +39,7 @@ message Executor
 message Request{
 	oneof request{
 		LoginRequest login = 1;
-		ListTaskRequest datarequest = 2;
+		ListTaskRequest data_request = 2;
 
 	}
 }
@@ -50,19 +58,19 @@ message LoginRequest {
 
 message Replies{
 	oneof reply{
-		ExaminationReply examinationreply = 1;
-		repeated string nametask = 2;
-		Task requestedtask = 3;
-		ListTaskReply list = 4;
+		ExaminationReply examination_reply = 1;
+		TaskProto requested_task = 2;
+		ListTaskReply list = 3;
 	}
 }
 
 message ListTaskReply {
     message ListTask {
-        string nametask = 1;
-		string executor = 2;
+		int32 id = 1;
+        string name_task = 2;
+		string executor = 3;
     }
-    repeated Inner list = 1;
+    repeated ListTask list = 1;
 }
 
 message ExaminationReply {

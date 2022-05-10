@@ -18,7 +18,7 @@ namespace TaskListGrpcService
 
         public override Task<Replies> Work(Request request, ServerCallContext context)
         {
-            return Task.FromResult(new Replies (){}) ;
+            return Task.FromResult(new Replies() { });
         }
     }
 }
