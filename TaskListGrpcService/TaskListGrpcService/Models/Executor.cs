@@ -1,8 +1,12 @@
-﻿namespace TaskListGrpcService.Models
+﻿namespace TaskListGrpcServer.Models
 {
+    [System.Serializable]
     public class Executor
     {
+        public int Id { get; set; }
+
         public string Name { get; set; }
+
         public string Surname { get; set; }
 
         private string _password;

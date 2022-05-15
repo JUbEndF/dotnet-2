@@ -1,6 +1,6 @@
-﻿
+﻿using System.Collections.Generic;
 
-namespace TaskListGrpcService.Models
+namespace TaskListGrpcServer.Models
 {
     public enum Status
     {
@@ -10,7 +10,7 @@ namespace TaskListGrpcService.Models
         COMPLETED,
         CLOSED,
     }
-
+    [System.Serializable]
     public class TaskElement
     {
         public int UniqueId { get; set; }
@@ -23,13 +23,15 @@ namespace TaskListGrpcService.Models
 
         public Status CurrentStatus { get; set; }
 
-        public TaskElement(int id, string name, string description, Executor? executor, Status status)
+        public List<Tag> ListTags { get; set; }
+
+        public TaskElement(string name, string description, Executor? executor, Status status, List<Tag> tags)
         {
-            UniqueId = id;
             NameTask = name;
             DescriptionTask = description;
             ExecutorTask = executor;
             CurrentStatus = status;
+            ListTags = tags;
         }
 
     }

@@ -7,8 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TaskListGrpcServer.Services;
 
-namespace TaskListGrpcService
+namespace TaskListGrpcServer
 {
     public class Startup
     {

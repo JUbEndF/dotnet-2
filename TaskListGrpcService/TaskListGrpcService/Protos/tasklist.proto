@@ -10,7 +10,7 @@ service TaskList {
 // Core Message
 // ------------
 
-message TaskProto {
+message TaskElement {
 	int32 id = 1;
 	string name_task = 2;
 	string task_description = 3;
@@ -21,15 +21,17 @@ message TaskProto {
 
 message Tags {
     message Tag {
-
+		int32 id = 1;
+		string name = 2;
+		int32 color = 3;
     }
     repeated Tag list_tag = 1;
 }
 
-message Executor
-{
+message Executor{
 	string name = 1;
-	string login = 2;
+	string Surname = 2;
+	string login = 3;
 }
 
 // -------
@@ -59,7 +61,7 @@ message LoginRequest {
 message Replies{
 	oneof reply{
 		ExaminationReply examination_reply = 1;
-		TaskProto requested_task = 2;
+		TaskElement requested_task = 2;
 		ListTaskReply list = 3;
 	}
 }

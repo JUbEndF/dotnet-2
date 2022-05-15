@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskListGrpcServer.Protos;
 
-namespace TaskListGrpcService
+namespace TaskListGrpcServer.Services
 {
     public class TaskListService : TaskList.TaskListBase
     {
