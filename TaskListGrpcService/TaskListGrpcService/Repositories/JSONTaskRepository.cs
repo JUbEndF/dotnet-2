@@ -14,11 +14,6 @@ namespace TaskListGrpcServer.Repositories
 
         private List<TaskElement>? _tasks;
 
-        public void Clear()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public List<TaskElement> GetAll()
         {
             Deserialize();

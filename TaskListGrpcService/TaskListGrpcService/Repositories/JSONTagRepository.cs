@@ -5,18 +5,13 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using TaskListGrpcServer.Models;
 
-namespace TaskListGrpcService.Repositories
+namespace TaskListGrpcServer.Repositories
 {
-    public class JSONTagRepository
+    public class JSONTagRepository : IRepository<Tag>
     {
         private readonly string _fileName = "tags.json";
 
         private List<Tag>? _tags;
-
-        public void Clear()
-        {
-            throw new System.NotImplementedException();
-        }
 
         public List<Tag> GetAll()
         {
