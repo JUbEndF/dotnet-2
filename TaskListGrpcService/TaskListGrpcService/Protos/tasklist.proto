@@ -28,7 +28,7 @@ message Tags {
     repeated Tag list_tag = 1;
 }
 
-message Executor{
+message Employee{
 	string name = 1;
 	string Surname = 2;
 	string login = 3;

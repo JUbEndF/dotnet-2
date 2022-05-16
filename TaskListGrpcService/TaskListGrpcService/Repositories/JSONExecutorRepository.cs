@@ -11,26 +11,26 @@ namespace TaskListGrpcService.Repositories
     {
         private readonly string _fileName = "executors.json";
 
-        private List<Executor>? _executors;
+        private List<Employee>? _executors;
 
         public void Clear()
         {
             throw new System.NotImplementedException();
         }
 
-        public List<Executor> GetAll()
+        public List<Employee> GetAll()
         {
             Deserialize();
             return _executors!;
         }
 
-        public Executor GetById(int id)
+        public Employee GetById(int id)
         {
             Deserialize();
             return _executors!.FirstOrDefault(obj => obj.Id == id)!;
         }
 
-        public void Insert(Executor obj)
+        public void Insert(Employee obj)
         {
             Deserialize();
 
@@ -69,7 +69,7 @@ namespace TaskListGrpcService.Repositories
             Serialize();
         }
 
-        public void Update(Executor executorUpdate)
+        public void Update(Employee executorUpdate)
         {
             Deserialize();
             var index = _executors!.FindIndex(obj => obj.Id == executorUpdate.Id);
@@ -84,27 +84,27 @@ namespace TaskListGrpcService.Repositories
                 return;
             if (!File.Exists(_fileName))
             {
-                _executors = new List<Executor>();
+                _executors = new List<Employee>();
             }
             try
             {
                 using FileStream? fileStream = File.OpenRead(_fileName);
                 {
-                    var serializer = new DataContractJsonSerializer(typeof(List<Executor>));
-                    _executors = (List<Executor>)serializer.ReadObject(fileStream)!;
+                    var serializer = new DataContractJsonSerializer(typeof(List<Employee>));
+                    _executors = (List<Employee>)serializer.ReadObject(fileStream)!;
                 }
             }
             catch
             {
                 Console.Write("An error occurred while reading the file\n");
-                _executors = new List<Executor>();
+                _executors = new List<Employee>();
             }
         }
 
         private void Serialize()
         {
             using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new DataContractJsonSerializer(typeof(List<Executor>));
+            DataContractJsonSerializer formatter = new DataContractJsonSerializer(typeof(List<Employee>));
             formatter.WriteObject(fileStream, _executors);
         }
     }

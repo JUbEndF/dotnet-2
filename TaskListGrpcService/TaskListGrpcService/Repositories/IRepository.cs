@@ -18,8 +18,5 @@ namespace TaskListGrpcServer.Repositories
         void Update(T executorUpdate);
 
         void Clear();
-
-
-
     }
 }
