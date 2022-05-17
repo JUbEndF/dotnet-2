@@ -11,25 +11,25 @@ namespace TaskListGrpcServer.Repositories
     {
         private readonly string _fileName = "tags.json";
 
-        private List<Tag>? _tags;
+        private List<Tag> _tags = new();
 
         public List<Tag> GetAll()
         {
             Deserialize();
-            return _tags!;
+            return _tags;
         }
 
         public Tag GetById(int id)
         {
             Deserialize();
-            return _tags!.FirstOrDefault(obj => obj.TagId == id)!;
+            return _tags.FirstOrDefault(obj => obj.TagId == id)!;
         }
 
         public void Insert(Tag obj)
         {
             Deserialize();
 
-            if (_tags!.Count == 0)
+            if (_tags.Count == 0)
             {
                 obj.TagId = 1;
                 _tags.Add(obj);
@@ -53,21 +53,21 @@ namespace TaskListGrpcServer.Repositories
         public void RemoveAll()
         {
             Deserialize();
-            _tags?.Clear();
+            _tags.Clear();
             Serialize();
         }
 
         public void RemoveAt(int id)
         {
             Deserialize();
-            _tags!.Remove(_tags.Find(obj => obj.TagId == id)!);
+            _tags.Remove(_tags.Find(obj => obj.TagId == id)!);
             Serialize();
         }
 
         public void Update(Tag executorUpdate)
         {
             Deserialize();
-            var index = _tags!.FindIndex(obj => obj.TagId == executorUpdate.TagId);
+            var index = _tags.FindIndex(obj => obj.TagId == executorUpdate.TagId);
             if (index != -1)
                 _tags[index] = executorUpdate;
             Serialize();
@@ -75,8 +75,6 @@ namespace TaskListGrpcServer.Repositories
 
         private void Deserialize()
         {
-            if (_tags != null)
-                return;
             if (!File.Exists(_fileName))
             {
                 _tags = new List<Tag>();

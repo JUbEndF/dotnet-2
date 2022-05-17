@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 using System.Collections.Generic;
-using TaskListGrpcServer.Models;
 using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Linq;
-using System;
+using System.Runtime.Serialization.Json;
+using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
 {
@@ -12,25 +11,25 @@ namespace TaskListGrpcServer.Repositories
     {
         private readonly string _fileName = "tasks.json";
 
-        private List<TaskElement>? _tasks;
+        private List<TaskElement> _tasks = new();
 
         public List<TaskElement> GetAll()
         {
             Deserialize();
-            return _tasks!;
+            return _tasks;
         }
 
         public TaskElement GetById(int id)
         {
             Deserialize();
-            return _tasks!.FirstOrDefault(obj => obj.UniqueId == id)!;
+            return _tasks.FirstOrDefault(obj => obj.UniqueId == id)!;
         }
 
         public void Insert(TaskElement obj)
         {
             Deserialize();
 
-            if (_tasks!.Count == 0)
+            if (_tasks.Count == 0)
             {
                 obj.UniqueId = 1;
                 _tasks.Add(obj);
@@ -54,22 +53,22 @@ namespace TaskListGrpcServer.Repositories
         public void RemoveAll()
         {
             Deserialize();
-            _tasks?.Clear();
+            _tasks.Clear();
             Serialize();
         }
 
         public void RemoveAt(int id)
         {
             Deserialize();
-            _tasks!.Remove(_tasks.Find(obj => obj.UniqueId == id)!);
+            _tasks.Remove(_tasks.Find(obj => obj.UniqueId == id)!);
             Serialize();
         }
 
         public void Update(TaskElement executorUpdate)
         {
             Deserialize();
-            var index = _tasks!.FindIndex(obj => obj.UniqueId == executorUpdate.UniqueId);
-            if(index != -1)
+            var index = _tasks.FindIndex(obj => obj.UniqueId == executorUpdate.UniqueId);
+            if (index != -1)
                 _tasks[index] = executorUpdate;
             Serialize();
         }
@@ -82,14 +81,16 @@ namespace TaskListGrpcServer.Repositories
             {
                 _tasks = new List<TaskElement>();
             }
-            try { 
+            try
+            {
                 using FileStream? fileStream = File.OpenRead(_fileName);
                 {
                     var serializer = new DataContractJsonSerializer(typeof(List<TaskElement>));
                     _tasks = (List<TaskElement>)serializer.ReadObject(fileStream)!;
                 }
             }
-            catch {
+            catch
+            {
                 Console.Write("An error occurred while reading the file\n");
                 _tasks = new List<TaskElement>();
             }
@@ -98,7 +99,7 @@ namespace TaskListGrpcServer.Repositories
         private void Serialize()
         {
             using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new DataContractJsonSerializer(typeof(List<TaskElement>));
+            DataContractJsonSerializer formatter = new(typeof(List<TaskElement>));
             formatter.WriteObject(fileStream, _tasks);
         }
     }

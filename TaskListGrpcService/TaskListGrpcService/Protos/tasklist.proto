@@ -3,7 +3,7 @@ syntax = "proto3";
 package TaskListGrpcServer.Protos;
 
 service TaskList {
-  rpc Work (Request) returns (Replies);
+  rpc Work (stream Request) returns (stream Replies);
 }
 
 // ------------
@@ -28,7 +28,7 @@ message Tags {
     repeated Tag list_tag = 1;
 }
 
-message Employee{
+message EmployeeProto{
 	string name = 1;
 	string Surname = 2;
 	string login = 3;
@@ -42,8 +42,16 @@ message Request{
 	oneof request{
 		LoginRequest login = 1;
 		ListTaskRequest data_request = 2;
-
+		NewUsers create_user = 3;
+		EditTask update_task = 4;
 	}
+}
+
+message NewUsers{
+	string name = 1;
+	string Surname = 2;
+	string login = 3;
+	string password = 4;
 }
 
 message ListTaskRequest{
@@ -52,7 +60,13 @@ message ListTaskRequest{
 
 message LoginRequest {
   string login = 1;
+  string password = 2;
 }
+
+message EditTask{
+	TaskElement update_task = 1;
+}
+
 
 // -------
 // Replies
@@ -63,6 +77,7 @@ message Replies{
 		ExaminationReply examination_reply = 1;
 		TaskElement requested_task = 2;
 		ListTaskReply list = 3;
+		TaskElement item_request = 4;
 	}
 }
 

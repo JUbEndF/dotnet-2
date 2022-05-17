@@ -7,29 +7,29 @@ using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
 {
-    public class JSONExecutorEmployee : IRepository<Employee>
+    public class JSONEmployeeRepository : IRepository<Employee>
     {
         private readonly string _fileName = "employee.json";
 
-        private List<Employee>? _employee;
+        private List<Employee> _employee = new();
 
         public List<Employee> GetAll()
         {
             Deserialize();
-            return _employee!;
+            return _employee;
         }
 
         public Employee GetById(int id)
         {
             Deserialize();
-            return _employee!.FirstOrDefault(obj => obj.Id == id)!;
+            return _employee.FirstOrDefault(obj => obj.Id == id)!;
         }
 
         public void Insert(Employee obj)
         {
             Deserialize();
 
-            if (_employee!.Count == 0)
+            if (_employee.Count == 0)
             {
                 obj.Id = 1;
                 _employee.Add(obj);
@@ -53,21 +53,21 @@ namespace TaskListGrpcServer.Repositories
         public void RemoveAll()
         {
             Deserialize();
-            _employee?.Clear();
+            _employee.Clear();
             Serialize();
         }
 
         public void RemoveAt(int id)
         {
             Deserialize();
-            _employee!.Remove(_employee.Find(obj => obj.Id == id)!);
+            _employee.Remove(_employee.Find(obj => obj.Id == id)!);
             Serialize();
         }
 
         public void Update(Employee executorUpdate)
         {
             Deserialize();
-            var index = _employee!.FindIndex(obj => obj.Id == executorUpdate.Id);
+            var index = _employee.FindIndex(obj => obj.Id == executorUpdate.Id);
             if (index != -1)
                 _employee[index] = executorUpdate;
             Serialize();
@@ -75,8 +75,6 @@ namespace TaskListGrpcServer.Repositories
 
         private void Deserialize()
         {
-            if (_employee != null)
-                return;
             if (!File.Exists(_fileName))
             {
                 _employee = new List<Employee>();
@@ -99,7 +97,7 @@ namespace TaskListGrpcServer.Repositories
         private void Serialize()
         {
             using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new DataContractJsonSerializer(typeof(List<Employee>));
+            DataContractJsonSerializer formatter = new(typeof(List<Employee>));
             formatter.WriteObject(fileStream, _employee);
         }
     }
