@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
@@ -12,6 +15,8 @@ namespace TaskListGrpcServer.Repositories
         private readonly string _fileName = "tasks.json";
 
         private List<TaskElement> _tasks = new();
+
+        private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public List<TaskElement> GetAll()
         {
@@ -25,7 +30,7 @@ namespace TaskListGrpcServer.Repositories
             return _tasks.FirstOrDefault(obj => obj.UniqueId == id)!;
         }
 
-        public void Insert(TaskElement obj)
+        public async void Insert(TaskElement obj)
         {
             Deserialize();
 
@@ -47,33 +52,33 @@ namespace TaskListGrpcServer.Repositories
                 }
             }
 
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void RemoveAll()
+        public async void RemoveAll()
         {
             Deserialize();
             _tasks.Clear();
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void RemoveAt(int id)
+        public async void RemoveAt(int id)
         {
             Deserialize();
             _tasks.Remove(_tasks.Find(obj => obj.UniqueId == id)!);
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void Update(TaskElement executorUpdate)
+        public async void Update(TaskElement executorUpdate)
         {
             Deserialize();
             var index = _tasks.FindIndex(obj => obj.UniqueId == executorUpdate.UniqueId);
             if (index != -1)
                 _tasks[index] = executorUpdate;
-            Serialize();
+            await SerializeAsync();
         }
 
-        private void Deserialize()
+        private async void Deserialize()
         {
             if (_tasks != null)
                 return;
@@ -83,11 +88,8 @@ namespace TaskListGrpcServer.Repositories
             }
             try
             {
-                using FileStream? fileStream = File.OpenRead(_fileName);
-                {
-                    var serializer = new DataContractJsonSerializer(typeof(List<TaskElement>));
-                    _tasks = (List<TaskElement>)serializer.ReadObject(fileStream)!;
-                }
+                await using FileStream streamMessage = File.Create(_fileName);
+                await JsonSerializer.SerializeAsync<List<TaskElement>>(streamMessage, _tasks!, new JsonSerializerOptions { WriteIndented = true });
             }
             catch
             {
@@ -96,11 +98,18 @@ namespace TaskListGrpcServer.Repositories
             }
         }
 
-        private void Serialize()
+        private async Task SerializeAsync()
         {
-            using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new(typeof(List<TaskElement>));
-            formatter.WriteObject(fileStream, _tasks);
+            await _semaphoreSlim.WaitAsync();
+            try
+            {
+                await using FileStream streamMessage = File.Create(_fileName);
+                await JsonSerializer.SerializeAsync<List<TaskElement>>(streamMessage, _tasks, new JsonSerializerOptions { WriteIndented = true });
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
+            }
         }
     }
 }

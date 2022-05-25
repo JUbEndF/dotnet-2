@@ -10,28 +10,29 @@ service TaskList {
 // Core Message
 // ------------
 
-message TaskElement {
+message TaskProto {
 	int32 id = 1;
 	string name_task = 2;
 	string task_description = 3;
 	Status current_state = 4;
-	string executor = 5;
-	Tags tags = 6;
+	EmployeeProto executor = 5;
+	TagsProto tags = 6;
 }
 
-message Tags {
-    message Tag {
+message TagsProto {
+    message TagProto {
 		int32 id = 1;
 		string name = 2;
 		int32 color = 3;
     }
-    repeated Tag list_tag = 1;
+    repeated TagProto list_tag = 1;
 }
 
 message EmployeeProto{
-	string name = 1;
-	string Surname = 2;
-	string login = 3;
+	int32 id = 1;
+	string name = 2;
+	string Surname = 3;
+	string login = 4;
 }
 
 // -------
@@ -41,9 +42,11 @@ message EmployeeProto{
 message Request{
 	oneof request{
 		LoginRequest login = 1;
-		ListTaskRequest data_request = 2;
+		ListTaskRequest list_data_request = 2;
 		NewUsers create_user = 3;
-		EditTask update_task = 4;
+		TaskProto task_request = 4;
+		TaskDataRequest task_data_request = 5;
+		int32 task_id_delete = 6;
 	}
 }
 
@@ -63,8 +66,8 @@ message LoginRequest {
   string password = 2;
 }
 
-message EditTask{
-	TaskElement update_task = 1;
+message TaskDataRequest{
+	int32 Request_task_id = 1;
 }
 
 
@@ -75,9 +78,8 @@ message EditTask{
 message Replies{
 	oneof reply{
 		ExaminationReply examination_reply = 1;
-		TaskElement requested_task = 2;
+		TaskProto reply_task = 2;
 		ListTaskReply list = 3;
-		TaskElement item_request = 4;
 	}
 }
 

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
@@ -11,23 +14,28 @@ namespace TaskListGrpcServer.Repositories
     {
         private readonly string _fileName = "employee.json";
 
-        private List<Employee> _employee = new();
+        private List<Employee>? _employee = new();
+
+        private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public List<Employee> GetAll()
         {
-            Deserialize();
-            return _employee;
+            DeserializeAsync();
+            return _employee!;
         }
 
         public Employee GetById(int id)
         {
-            Deserialize();
-            return _employee.FirstOrDefault(obj => obj.Id == id)!;
+            DeserializeAsync();
+            return _employee!.FirstOrDefault(obj => obj.Id == id)!;
         }
 
-        public void Insert(Employee obj)
+        public async void Insert(Employee obj)
         {
-            Deserialize();
+            DeserializeAsync();
+
+            if (_employee!.FindIndex(ptr => ptr.Login == obj.Login) != -1)
+                return;
 
             if (_employee.Count == 0)
             {
@@ -38,7 +46,7 @@ namespace TaskListGrpcServer.Repositories
             {
                 for (int i = 1; i <= _employee.Count + 1; i++)
                 {
-                    if (_employee.FindIndex(ibj => obj.Id == i) == -1)
+                    if (_employee.FindIndex(ptr => ptr.Id == i) == -1)
                     {
                         obj.Id = i;
                         _employee.Add(obj);
@@ -47,44 +55,41 @@ namespace TaskListGrpcServer.Repositories
                 }
             }
 
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void RemoveAll()
+        public async void RemoveAll()
         {
-            Deserialize();
-            _employee.Clear();
-            Serialize();
+            DeserializeAsync();
+            _employee!.Clear();
+            await SerializeAsync();
         }
 
-        public void RemoveAt(int id)
+        public async void RemoveAt(int id)
         {
-            Deserialize();
-            _employee.Remove(_employee.Find(obj => obj.Id == id)!);
-            Serialize();
+            DeserializeAsync();
+            _employee!.Remove(_employee.Find(obj => obj.Id == id)!);
+            await SerializeAsync();
         }
 
-        public void Update(Employee executorUpdate)
+        public async void Update(Employee executorUpdate)
         {
-            Deserialize();
-            var index = _employee.FindIndex(obj => obj.Id == executorUpdate.Id);
+            DeserializeAsync();
+            var index = _employee!.FindIndex(obj => obj.Id == executorUpdate.Id);
             if (index != -1)
                 _employee[index] = executorUpdate;
-            Serialize();
+            await SerializeAsync();
         }
 
-        private void Deserialize()
+        private async void DeserializeAsync()
         {
-            if (!File.Exists(_fileName))
-            {
-                _employee = new List<Employee>();
-            }
+            await _semaphoreSlim.WaitAsync();
             try
             {
-                using FileStream? fileStream = File.OpenRead(_fileName);
+                if (File.Exists(_fileName))
                 {
-                    var serializer = new DataContractJsonSerializer(typeof(List<Employee>));
-                    _employee = (List<Employee>)serializer.ReadObject(fileStream)!;
+                    await using FileStream stream = File.Open(_fileName, FileMode.Open);
+                    _employee = await JsonSerializer.DeserializeAsync<List<Employee>>(stream);
                 }
             }
             catch
@@ -92,13 +97,24 @@ namespace TaskListGrpcServer.Repositories
                 Console.Write("An error occurred while reading the file\n");
                 _employee = new List<Employee>();
             }
+            finally
+            {
+                _semaphoreSlim.Release();
+            }
         }
 
-        private void Serialize()
+        private async Task SerializeAsync()
         {
-            using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new(typeof(List<Employee>));
-            formatter.WriteObject(fileStream, _employee);
+            await _semaphoreSlim.WaitAsync();
+            try
+            {
+                await using FileStream streamMessage = File.Create(_fileName);
+                await JsonSerializer.SerializeAsync<List<Employee>>(streamMessage, _employee!, new JsonSerializerOptions { WriteIndented = true });
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
+            }
         }
     }
 }

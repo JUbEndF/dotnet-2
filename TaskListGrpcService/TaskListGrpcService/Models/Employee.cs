@@ -1,9 +1,13 @@
-﻿namespace TaskListGrpcServer.Models
+﻿using ProtoBuf;
+using TaskListGrpcServer.Protos;
+
+namespace TaskListGrpcServer.Models
 {
     /// <summary>
     /// Class describing performers and storing their data
     /// </summary>
     [System.Serializable]
+    [ProtoContract]
     public class Employee
     {
         /// <summary>
@@ -41,6 +45,22 @@
             _password = password;
             Login = login;
         }
+
+        public Employee()
+        {
+            Id = -1;
+            Name = string.Empty;
+            Surname = string.Empty;
+            _password = string.Empty;
+            Login = string.Empty;
+        }
+
+        public EmployeeProto ToProtoType()
+        {
+            return new EmployeeProto { Login = Login, Name = Name, Surname = Surname };
+        }
+
+
 
         public bool LoginCheck(string password) => _password == password;
     }

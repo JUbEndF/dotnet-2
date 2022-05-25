@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
+using System.Threading;
 using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
@@ -12,6 +13,8 @@ namespace TaskListGrpcServer.Repositories
         private readonly string _fileName = "tags.json";
 
         private List<Tag> _tags = new();
+
+        private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public List<Tag> GetAll()
         {

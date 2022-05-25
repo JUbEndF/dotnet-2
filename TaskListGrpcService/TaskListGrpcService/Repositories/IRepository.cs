@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TaskListGrpcServer.Repositories
 {
@@ -25,7 +26,7 @@ namespace TaskListGrpcServer.Repositories
         /// <summary>
         /// Inserting an element
         /// </summary>
-        /// <param name="obj">added element</param>
+        /// <param name="obj">add element</param>
         void Insert(T obj);
 
         /// <summary>

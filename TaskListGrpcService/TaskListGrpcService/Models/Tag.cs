@@ -1,9 +1,13 @@
-﻿namespace TaskListGrpcServer.Models
+﻿using ProtoBuf;
+using static TaskListGrpcServer.Protos.TagsProto.Types;
+
+namespace TaskListGrpcServer.Models
 {
     /// <summary>
     /// Class describing the structure of tags for tasks
     /// </summary>
     [System.Serializable]
+    [ProtoContract]
     public class Tag
     {
         /// <summary>
@@ -28,6 +32,18 @@
         {
             TagName = tagName;
             Color = color;
+        }
+
+        public Tag(int id, string tagName, int color)
+        {
+            TagId = id;
+            TagName = tagName;
+            Color = color;
+        }
+
+        public TagProto TagToProto()
+        {
+            return new TagProto { Color = Color, Id = TagId, Name = TagName };
         }
     }
 }

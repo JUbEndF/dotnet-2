@@ -1,22 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Google.Protobuf.Collections;
+using ProtoBuf;
+using System.Collections.Generic;
+using TaskListGrpcServer.Protos;
+using static TaskListGrpcServer.Protos.TagsProto.Types;
 
 namespace TaskListGrpcServer.Models
 {
     /// <summary>
-    /// Job execution status enumerations
-    /// </summary>
-    public enum Status
-    {
-        NEW,
-        ASSIGNED,
-        DISCUSSION,
-        COMPLETED,
-        CLOSED,
-    }
-    /// <summary>
     /// Class describing the task
     /// </summary>
     [System.Serializable]
+    [ProtoContract]
     public class TaskElement
     {
         /// <summary>
@@ -37,7 +31,7 @@ namespace TaskListGrpcServer.Models
         /// <summary>
         /// The executor of this task
         /// </summary>
-        public Employee? ExecutorTask { get; set; }
+        public Employee ExecutorTask { get; set; }
 
         /// <summary>
         /// The current state of the job
@@ -52,13 +46,39 @@ namespace TaskListGrpcServer.Models
         /// <summary>
         /// Constructor with task data
         /// </summary>
-        public TaskElement(string name, string description, Employee? executor, Status status, List<Tag> tags)
+        public TaskElement(string name, string description, Employee executor, Status status, List<Tag> tags)
         {
+            UniqueId = -1;
             NameTask = name;
             DescriptionTask = description;
             ExecutorTask = executor;
             CurrentStatus = status;
             ListTags = tags;
+        }
+
+        public TaskElement()
+        {
+            UniqueId = -1;
+            NameTask = string.Empty;
+            DescriptionTask = string.Empty;
+            CurrentStatus = Status.New;
+            ExecutorTask = new Employee();
+            ListTags = new List<Tag>();
+        }
+
+        public TagsProto TagsToProto()
+        {
+            var tags = new TagsProto();
+            foreach (var tag in ListTags)
+                tags.ListTag.Add(new TagProto { Color = tag.Color, Id = tag.TagId, Name = tag.TagName });
+            return tags;
+        }
+        public static List<Tag> ProtoToTags(TagsProto tagsProto)
+        {
+            var tags = new List<Tag>();
+            foreach (var tag in tagsProto.ListTag)
+                tags.Add(new Tag (tag.Id, tag.Name, tag.Color));
+            return tags;
         }
     }
 }
