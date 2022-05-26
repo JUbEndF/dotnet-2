@@ -1,5 +1,5 @@
 ﻿using ProtoBuf;
-using static TaskListGrpcServer.Protos.TagsProto.Types;
+using TaskListGrpcServer.Protos;
 
 namespace TaskListGrpcServer.Models
 {
@@ -45,5 +45,7 @@ namespace TaskListGrpcServer.Models
         {
             return new TagProto { Color = Color, Id = TagId, Name = TagName };
         }
+
+        public bool Equals(Tag tag) => TagName == tag.TagName;
     }
 }

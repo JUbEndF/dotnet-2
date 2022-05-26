@@ -1,8 +1,6 @@
-﻿using Google.Protobuf.Collections;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System.Collections.Generic;
 using TaskListGrpcServer.Protos;
-using static TaskListGrpcServer.Protos.TagsProto.Types;
 
 namespace TaskListGrpcServer.Models
 {
@@ -77,7 +75,7 @@ namespace TaskListGrpcServer.Models
         {
             var tags = new List<Tag>();
             foreach (var tag in tagsProto.ListTag)
-                tags.Add(new Tag (tag.Id, tag.Name, tag.Color));
+                tags.Add(new Tag(tag.Id, tag.Name, tag.Color));
             return tags;
         }
     }

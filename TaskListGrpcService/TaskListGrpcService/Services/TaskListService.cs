@@ -13,7 +13,7 @@ namespace TaskListGrpcServer.Services
     {
         private readonly ILogger<TaskListService> _logger;
 
-        private readonly ConcurrentDictionary<int, Employee> _players = new();
+        private readonly ConcurrentDictionary<int, Employee> _users = new();
 
         private JSONEmployeeRepository _employeeRepository;
 
@@ -41,8 +41,8 @@ namespace TaskListGrpcServer.Services
 
 
 
-            var user = requestStream.Current.RequestCase == Request.RequestOneofCase.Login? 
-                Login(requestStream.Current.Login, responseStream):
+            var user = requestStream.Current.RequestCase == Request.RequestOneofCase.Login ?
+                Login(requestStream.Current.Login, responseStream) :
                 Registration(requestStream.Current.CreateUser, responseStream);
 
             try
@@ -71,6 +71,18 @@ namespace TaskListGrpcServer.Services
                         case Request.RequestOneofCase.TaskIdDelete:
                             DeleteTask(requestStream.Current.TaskIdDelete, responseStream);
                             break;
+                        case Request.RequestOneofCase.TagIdDelete:
+                            DeleteTag(requestStream.Current.TagIdDelete, responseStream);
+                            break;
+                        case Request.RequestOneofCase.EmployeeIdDelete:
+                            DeleteEmployee(requestStream.Current.EmployeeIdDelete, responseStream);
+                            break;
+                        case Request.RequestOneofCase.TegRequest:
+                            await RequestTag(requestStream.Current.TegRequest, responseStream);
+                            break;
+                        case Request.RequestOneofCase.ReadExistingTags:
+                            await ListTagReplies(requestStream.Current.ReadExistingTags, responseStream);
+                            break;
                         default: throw new ApplicationException();
                     }
                 }
@@ -78,7 +90,7 @@ namespace TaskListGrpcServer.Services
             finally
             {
                 if (user is not null)
-                    _players.TryRemove(user.Id, out _);
+                    _users.TryRemove(user.Id, out _);
             }
         }
 
@@ -88,7 +100,7 @@ namespace TaskListGrpcServer.Services
             var user = employees.Find(obj => obj.Login == loginRequest.Login);
             if (user is null)
                 return null;
-            _players.TryAdd(user!.Id, user);
+            _users.TryAdd(user!.Id, user);
             if (user!.LoginCheck(loginRequest.Password))
                 return user;
             return null;
@@ -113,7 +125,25 @@ namespace TaskListGrpcServer.Services
             catch (Exception)
             {
                 var message = new ExaminationReply { Success = false };
-                await responseStream.WriteAsync(new Replies {ExaminationReply = message});
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+            finally
+            {
+                var message = new ExaminationReply { Success = true };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+        }
+
+        async void DeleteEmployee(int employeeIdDelete, IServerStreamWriter<Replies> responseStream)
+        {
+            try
+            {
+                _employeeRepository.RemoveAt(employeeIdDelete);
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
             finally
             {
@@ -154,15 +184,19 @@ namespace TaskListGrpcServer.Services
                     executor,
                     requestTask.CurrentState,
                     TaskElement.ProtoToTags(requestTask.Tags)
-                );
-                task.UniqueId = requestTask.Id;
+                )
+                {
+                    UniqueId = requestTask.Id
+                };
                 if (_jsonTaskRepository.GetAll().FindIndex(obj => obj.UniqueId == task.UniqueId) != -1)
                     _jsonTaskRepository.Update(task);
-                else _jsonTaskRepository.Insert(task);
+                else
+                    _jsonTaskRepository.Insert(task);
             }
-            finally {
+            finally
+            {
                 var examinationReply = new ExaminationReply { Success = true };
-                await responseStream.WriteAsync( new Replies { ExaminationReply = examinationReply});
+                await responseStream.WriteAsync(new Replies { ExaminationReply = examinationReply });
             }
         }
 
@@ -180,7 +214,69 @@ namespace TaskListGrpcServer.Services
                 Tags = searchTask.TagsToProto(),
                 TaskDescription = searchTask.DescriptionTask,
             };
-            await responseStream.WriteAsync(new Replies { ReplyTask = repliesTask} );
+            await responseStream.WriteAsync(new Replies { ReplyTask = repliesTask });
+        }
+
+        async Task RequestTag(TagProto requestTag, IServerStreamWriter<Replies> responseStream)
+        {
+            try
+            {
+                var tag = new Tag(
+                    requestTag.Name,
+                    requestTag.Color
+                )
+                {
+                    TagId = requestTag.Id
+                };
+                if (_jsonTagRepository.GetAll().FindIndex(obj => obj.TagId == tag.TagId) != -1)
+                    _jsonTagRepository.Update(tag);
+                else
+                    _jsonTagRepository.Insert(tag);
+            }
+            finally
+            {
+                var examinationReply = new ExaminationReply { Success = true };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = examinationReply });
+            }
+        }
+
+        async Task ListTagReplies(RequestAllTags requestAllTags, IServerStreamWriter<Replies> responseStream)
+        {
+            var listTagsReplies = new TagsProto();
+            try
+            {
+                foreach (var item in _jsonTagRepository.GetAll())
+                {
+                    listTagsReplies.ListTag.Add(new TagProto
+                    {
+                        Color = item.Color,
+                        Name = item.TagName,
+                        Id = item.TagId
+                    });
+                }
+            }
+            finally
+            {
+                await responseStream.WriteAsync(new Replies { ReplyListTags = listTagsReplies });
+            }
+        }
+
+        async void DeleteTag(int tagIdDelete, IServerStreamWriter<Replies> responseStream)
+        {
+            try
+            {
+                _jsonTagRepository.RemoveAt(tagIdDelete);
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+            finally
+            {
+                var message = new ExaminationReply { Success = true };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
         }
     }
 }

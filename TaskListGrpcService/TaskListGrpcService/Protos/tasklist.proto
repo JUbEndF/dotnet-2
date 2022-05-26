@@ -19,12 +19,13 @@ message TaskProto {
 	TagsProto tags = 6;
 }
 
-message TagsProto {
-    message TagProto {
+message TagProto {
 		int32 id = 1;
 		string name = 2;
 		int32 color = 3;
-    }
+}
+
+message TagsProto {
     repeated TagProto list_tag = 1;
 }
 
@@ -42,12 +43,24 @@ message EmployeeProto{
 message Request{
 	oneof request{
 		LoginRequest login = 1;
-		ListTaskRequest list_data_request = 2;
 		NewUsers create_user = 3;
+		EmployeeProto edit_user_data = 9;
+
+		ListTaskRequest list_data_request = 2;
 		TaskProto task_request = 4;
 		TaskDataRequest task_data_request = 5;
+
 		int32 task_id_delete = 6;
+		int32 employee_id_delete = 7;
+		int32 tag_id_delete = 8;
+
+		TagProto teg_request = 10;
+		RequestAllTags read_existing_tags = 11;
 	}
+}
+
+message RequestAllTags{
+
 }
 
 message NewUsers{
@@ -80,6 +93,7 @@ message Replies{
 		ExaminationReply examination_reply = 1;
 		TaskProto reply_task = 2;
 		ListTaskReply list = 3;
+		TagsProto reply_list_tags = 4;
 	}
 }
 
