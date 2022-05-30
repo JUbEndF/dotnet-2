@@ -45,6 +45,8 @@ message Request{
 		LoginRequest login = 1;
 		NewUsers create_user = 3;
 		EmployeeProto edit_user_data = 9;
+		RequestAllEmployee read_existing_users = 12;
+
 
 		ListTaskRequest list_data_request = 2;
 		TaskProto task_request = 4;
@@ -57,6 +59,10 @@ message Request{
 		TagProto teg_request = 10;
 		RequestAllTags read_existing_tags = 11;
 	}
+}
+
+message RequestAllEmployee{
+
 }
 
 message RequestAllTags{
@@ -94,7 +100,18 @@ message Replies{
 		TaskProto reply_task = 2;
 		ListTaskReply list = 3;
 		TagsProto reply_list_tags = 4;
+		ListEmployeeReply reply_list_employee = 5;
 	}
+}
+
+message ReplyEmployee{
+	int32 id = 1;
+	string name = 2;
+	string surname = 3;
+}
+
+message ListEmployeeReply{
+	repeated ReplyEmployee reply_list_employee = 1;
 }
 
 message ListTaskReply {

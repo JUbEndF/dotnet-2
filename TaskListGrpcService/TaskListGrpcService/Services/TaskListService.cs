@@ -83,6 +83,9 @@ namespace TaskListGrpcServer.Services
                         case Request.RequestOneofCase.ReadExistingTags:
                             await ListTagReplies(requestStream.Current.ReadExistingTags, responseStream);
                             break;
+                        case Request.RequestOneofCase.ReadExistingUsers:
+                            await ListEmployeeReplies(requestStream.Current.ReadExistingUsers, responseStream);
+                            break;
                         default: throw new ApplicationException();
                     }
                 }
@@ -276,6 +279,27 @@ namespace TaskListGrpcServer.Services
             {
                 var message = new ExaminationReply { Success = true };
                 await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+        }
+
+        async Task ListEmployeeReplies(RequestAllEmployee requestAllTags, IServerStreamWriter<Replies> responseStream)
+        {
+            var listEmployeeReplies = new ListEmployeeReply();
+            try
+            {
+                foreach (var item in _employeeRepository.GetAll())
+                {
+                    listEmployeeReplies.ReplyListEmployee.Add(new ReplyEmployee
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Surname = item.Surname
+                    });
+                }
+            }
+            finally
+            {
+                await responseStream.WriteAsync(new Replies { ReplyListEmployee = listEmployeeReplies });
             }
         }
     }
