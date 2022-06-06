@@ -71,6 +71,7 @@ namespace TaskListGrpcServer.Models
                 tags.ListTag.Add(new TagProto { Color = tag.Color, Id = tag.TagId, Name = tag.TagName });
             return tags;
         }
+
         public static List<Tag> ProtoToTags(TagsProto tagsProto)
         {
             var tags = new List<Tag>();

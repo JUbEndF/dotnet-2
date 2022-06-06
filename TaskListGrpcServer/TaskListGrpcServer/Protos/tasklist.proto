@@ -34,6 +34,7 @@ message EmployeeProto{
 	string name = 2;
 	string Surname = 3;
 	string login = 4;
+	string password = 5;
 }
 
 // -------
@@ -46,6 +47,7 @@ message Request{
 		NewUsers create_user = 3;
 		EmployeeProto edit_user_data = 9;
 		RequestAllEmployee read_existing_users = 12;
+
 
 
 		ListTaskRequest list_data_request = 2;

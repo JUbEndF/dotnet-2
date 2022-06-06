@@ -15,23 +15,23 @@ namespace TaskListGrpcServer.Repositories
 
         private List<Employee>? _employee = new();
 
-        private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
-        public List<Employee> GetAll()
+        public async Task<List<Employee>> GetAllAsync()
         {
-            DeserializeAsync();
+            await DeserializeAsync();
             return _employee!;
         }
 
-        public Employee GetById(int id)
+        public async Task<Employee> GetByIdAsync(int id)
         {
-            DeserializeAsync();
+            await DeserializeAsync();
             return _employee!.FirstOrDefault(obj => obj.Id == id)!;
         }
 
         public async void Insert(Employee obj)
         {
-            DeserializeAsync();
+            await DeserializeAsync();
 
             if (_employee!.FindIndex(ptr => ptr.Login == obj.Login) != -1)
                 return;
@@ -57,32 +57,40 @@ namespace TaskListGrpcServer.Repositories
             await SerializeAsync();
         }
 
-        public async void RemoveAll()
+        public async void RemoveAllAsync()
         {
-            DeserializeAsync();
+            await DeserializeAsync();
             _employee!.Clear();
             await SerializeAsync();
         }
 
-        public async void RemoveAt(int id)
+        public async void RemoveAtAsync(int id)
         {
-            DeserializeAsync();
+            await DeserializeAsync();
             _employee!.Remove(_employee.Find(obj => obj.Id == id)!);
             await SerializeAsync();
         }
 
-        public async void Update(Employee executorUpdate)
+        public async Task<bool> UpdateAsync(Employee executorUpdate)
         {
-            DeserializeAsync();
+            await DeserializeAsync();
             var index = _employee!.FindIndex(obj => obj.Id == executorUpdate.Id);
             if (index != -1)
                 _employee[index] = executorUpdate;
+            else return false;
             await SerializeAsync();
+            return true;
         }
 
-        private async void DeserializeAsync()
+        private async Task DeserializeAsync()
         {
+            if (_employee != null)
+                return;
             await _semaphoreSlim.WaitAsync();
+            if (!File.Exists(_fileName))
+            {
+                _employee = new List<Employee>();
+            }
             try
             {
                 if (File.Exists(_fileName))

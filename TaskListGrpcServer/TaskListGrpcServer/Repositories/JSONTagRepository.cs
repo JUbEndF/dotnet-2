@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Json;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
 
 namespace TaskListGrpcServer.Repositories
@@ -16,21 +17,21 @@ namespace TaskListGrpcServer.Repositories
 
         private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-        public List<Tag> GetAll()
+        public async Task<List<Tag>> GetAllAsync()
         {
-            Deserialize();
+            await DeserializeAsync();
             return _tags;
         }
 
-        public Tag GetById(int id)
+        public async Task<Tag> GetByIdAsync(int id)
         {
-            Deserialize();
+            await DeserializeAsync();
             return _tags.FirstOrDefault(obj => obj.TagId == id)!;
         }
 
-        public void Insert(Tag obj)
+        public async void Insert(Tag obj)
         {
-            Deserialize();
+            await DeserializeAsync();
 
             if (_tags.Count == 0)
             {
@@ -50,58 +51,69 @@ namespace TaskListGrpcServer.Repositories
                 }
             }
 
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void RemoveAll()
+        public async void RemoveAllAsync()
         {
-            Deserialize();
+            await DeserializeAsync();
             _tags.Clear();
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void RemoveAt(int id)
+        public async void RemoveAtAsync(int id)
         {
-            Deserialize();
+            await DeserializeAsync();
             _tags.Remove(_tags.Find(obj => obj.TagId == id)!);
-            Serialize();
+            await SerializeAsync();
         }
 
-        public void Update(Tag executorUpdate)
+        public async Task<bool> UpdateAsync(Tag executorUpdate)
         {
-            Deserialize();
+            await DeserializeAsync();
             var index = _tags.FindIndex(obj => obj.TagId == executorUpdate.TagId);
             if (index != -1)
                 _tags[index] = executorUpdate;
-            Serialize();
+            else return false;
+            await SerializeAsync();
+            return true;
         }
 
-        private void Deserialize()
+        private async Task DeserializeAsync()
         {
+            if (_tags != null)
+                return;
+            await _semaphoreSlim.WaitAsync();
             if (!File.Exists(_fileName))
             {
                 _tags = new List<Tag>();
             }
             try
             {
-                using FileStream? fileStream = File.OpenRead(_fileName);
-                {
-                    var serializer = new DataContractJsonSerializer(typeof(List<Tag>));
-                    _tags = (List<Tag>)serializer.ReadObject(fileStream)!;
-                }
+                await using FileStream streamMessage = File.Create(_fileName);
+                await JsonSerializer.SerializeAsync<List<Tag>>(streamMessage, _tags!, new JsonSerializerOptions { WriteIndented = true });
+                _semaphoreSlim.Release();
             }
             catch
             {
                 Console.Write("An error occurred while reading the file\n");
                 _tags = new List<Tag>();
+                _semaphoreSlim.Release();
             }
         }
 
-        private void Serialize()
+        private async Task SerializeAsync()
         {
-            using FileStream? fileStream = new(_fileName, FileMode.Create);
-            DataContractJsonSerializer formatter = new DataContractJsonSerializer(typeof(List<Tag>));
-            formatter.WriteObject(fileStream, _tags);
+            await _semaphoreSlim.WaitAsync();
+            try
+            {
+                await using FileStream streamMessage = File.Create(_fileName);
+                await JsonSerializer.SerializeAsync<List<Tag>>(streamMessage, _tags, new JsonSerializerOptions { WriteIndented = true });
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
+            }
         }
     }
 }

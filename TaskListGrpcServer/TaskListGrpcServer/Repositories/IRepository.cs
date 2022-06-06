@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TaskListGrpcServer.Repositories
 {
@@ -13,14 +14,14 @@ namespace TaskListGrpcServer.Repositories
         /// getting all elements
         /// </summary>
         /// <returns>all elements</returns>
-        List<T> GetAll();
+        Task<List<T>> GetAllAsync();
 
         /// <summary>
         /// Getting an element by its unique id
         /// </summary>
         /// <param name="id">element id</param>
         /// <returns>search element</returns>
-        T GetById(int id);
+        Task<T> GetByIdAsync(int id);
 
         /// <summary>
         /// Inserting an element
@@ -32,17 +33,17 @@ namespace TaskListGrpcServer.Repositories
         /// Remove an element by its id
         /// </summary>
         /// <param name="id">id remove element</param>
-        void RemoveAt(int id);
+        void RemoveAtAsync(int id);
 
         /// <summary>
         /// remove all element list
         /// </summary>
-        void RemoveAll();
+        void RemoveAllAsync();
 
         /// <summary>
         /// Update an element
         /// </summary>
         /// <param name="executorUpdate">Updated Item</param>
-        void Update(T executorUpdate);
+        Task<bool> UpdateAsync(T executorUpdate);
     }
 }

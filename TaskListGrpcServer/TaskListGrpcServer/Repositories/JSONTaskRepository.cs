@@ -17,21 +17,21 @@ namespace TaskListGrpcServer.Repositories
 
         private SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-        public List<TaskElement> GetAll()
+        public async Task<List<TaskElement>> GetAllAsync()
         {
-            Deserialize();
+            await Deserialize();
             return _tasks;
         }
 
-        public TaskElement GetById(int id)
+        public async Task<TaskElement> GetByIdAsync(int id)
         {
-            Deserialize();
+            await Deserialize();
             return _tasks.FirstOrDefault(obj => obj.UniqueId == id)!;
         }
 
         public async void Insert(TaskElement obj)
         {
-            Deserialize();
+            await Deserialize();
 
             if (_tasks.Count == 0)
             {
@@ -54,33 +54,36 @@ namespace TaskListGrpcServer.Repositories
             await SerializeAsync();
         }
 
-        public async void RemoveAll()
+        public async void RemoveAllAsync()
         {
-            Deserialize();
+            await Deserialize();
             _tasks.Clear();
             await SerializeAsync();
         }
 
-        public async void RemoveAt(int id)
+        public async void RemoveAtAsync(int id)
         {
-            Deserialize();
+            await Deserialize();
             _tasks.Remove(_tasks.Find(obj => obj.UniqueId == id)!);
             await SerializeAsync();
         }
 
-        public async void Update(TaskElement executorUpdate)
+        public async Task<bool> UpdateAsync(TaskElement executorUpdate)
         {
-            Deserialize();
+            await Deserialize();
             var index = _tasks.FindIndex(obj => obj.UniqueId == executorUpdate.UniqueId);
             if (index != -1)
                 _tasks[index] = executorUpdate;
+            else return false;
             await SerializeAsync();
+            return true;
         }
 
-        private async void Deserialize()
+        private async Task Deserialize()
         {
             if (_tasks != null)
                 return;
+            await _semaphoreSlim.WaitAsync();
             if (!File.Exists(_fileName))
             {
                 _tasks = new List<TaskElement>();
@@ -89,11 +92,13 @@ namespace TaskListGrpcServer.Repositories
             {
                 await using FileStream streamMessage = File.Create(_fileName);
                 await JsonSerializer.SerializeAsync<List<TaskElement>>(streamMessage, _tasks!, new JsonSerializerOptions { WriteIndented = true });
+                _semaphoreSlim.Release();
             }
             catch
             {
                 Console.Write("An error occurred while reading the file\n");
                 _tasks = new List<TaskElement>();
+                _semaphoreSlim.Release();
             }
         }
 

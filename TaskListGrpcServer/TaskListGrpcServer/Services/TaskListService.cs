@@ -15,16 +15,16 @@ namespace TaskListGrpcServer.Services
 
         private readonly ConcurrentDictionary<int, Employee> _users = new();
 
-        private JSONEmployeeRepository _employeeRepository;
+        private readonly JSONEmployeeRepository _jsonEmployeeRepository;
 
-        private JSONTagRepository _jsonTagRepository;
+        private readonly JSONTagRepository _jsonTagRepository;
 
-        private JSONTaskRepository _jsonTaskRepository;
+        private readonly JSONTaskRepository _jsonTaskRepository;
 
         public TaskListService(ILogger<TaskListService> logger)
         {
             _logger = logger;
-            _employeeRepository = new JSONEmployeeRepository();
+            _jsonEmployeeRepository = new JSONEmployeeRepository();
             _jsonTagRepository = new JSONTagRepository();
             _jsonTaskRepository = new JSONTaskRepository();
         }
@@ -38,20 +38,15 @@ namespace TaskListGrpcServer.Services
 
             if (requestStream.Current.RequestCase != Request.RequestOneofCase.Login && requestStream.Current.RequestCase != Request.RequestOneofCase.CreateUser)
                 return;
-
-
-
             var user = requestStream.Current.RequestCase == Request.RequestOneofCase.Login ?
                 Login(requestStream.Current.Login, responseStream) :
                 Registration(requestStream.Current.CreateUser, responseStream);
-
             try
             {
                 var loginReply = new ExaminationReply { Success = user is not null };
                 await responseStream.WriteAsync(new Replies { ExaminationReply = loginReply });
                 if (user is null)
                     return;
-
 
                 while (await requestStream.MoveNext())
                 {
@@ -86,6 +81,9 @@ namespace TaskListGrpcServer.Services
                         case Request.RequestOneofCase.ReadExistingUsers:
                             await ListEmployeeReplies(requestStream.Current.ReadExistingUsers, responseStream);
                             break;
+                        case Request.RequestOneofCase.EditUserData:
+                            await EditUserData(requestStream.Current.EditUserData, responseStream);
+                            break;
                         default: throw new ApplicationException();
                     }
                 }
@@ -99,8 +97,8 @@ namespace TaskListGrpcServer.Services
 
         Employee? Login(LoginRequest loginRequest, IServerStreamWriter<Replies> responseStream)
         {
-            var employees = _employeeRepository.GetAll();
-            var user = employees.Find(obj => obj.Login == loginRequest.Login);
+            var employees = _jsonEmployeeRepository.GetAllAsync();
+            var user = employees.Result.Find(obj => obj.Login == loginRequest.Login);
             if (user is null)
                 return null;
             _users.TryAdd(user!.Id, user);
@@ -113,9 +111,9 @@ namespace TaskListGrpcServer.Services
         {
             var employee = new Employee(newUserRequest.Name, newUserRequest.Surname,
                 newUserRequest.Password, newUserRequest.Login);
-            _employeeRepository.Insert(employee);
-            var employees = _employeeRepository.GetAll();
-            var user = employees.Find(obj => obj.Login == employee.Login);
+            _jsonEmployeeRepository.Insert(employee);
+            var employees = _jsonEmployeeRepository.GetAllAsync();
+            var user = employees.Result.Find(obj => obj.Login == employee.Login);
             return user;
         }
 
@@ -123,7 +121,7 @@ namespace TaskListGrpcServer.Services
         {
             try
             {
-                _jsonTaskRepository.RemoveAt(taskIdDelete);
+                _jsonTaskRepository.RemoveAtAsync(taskIdDelete);
             }
             catch (Exception)
             {
@@ -141,7 +139,7 @@ namespace TaskListGrpcServer.Services
         {
             try
             {
-                _employeeRepository.RemoveAt(employeeIdDelete);
+                _jsonEmployeeRepository.RemoveAtAsync(employeeIdDelete);
             }
             catch (Exception)
             {
@@ -160,7 +158,7 @@ namespace TaskListGrpcServer.Services
             var listRepliesTask = new ListTaskReply();
             try
             {
-                foreach (var item in _jsonTaskRepository.GetAll())
+                foreach (var item in _jsonTaskRepository.GetAllAsync().Result)
                 {
                     listRepliesTask.List.Add(new ListTaskReply.Types.ListTask
                     {
@@ -170,9 +168,41 @@ namespace TaskListGrpcServer.Services
                     });
                 }
             }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
             finally
             {
                 await responseStream.WriteAsync(new Replies { List = listRepliesTask });
+            }
+        }
+
+        async Task EditUserData(EmployeeProto employeeProtoUpdate, IServerStreamWriter<Replies> responseStream)
+        {
+            try
+            {
+                await _jsonEmployeeRepository.UpdateAsync(new Employee(
+                        employeeProtoUpdate.Name,
+                        employeeProtoUpdate.Surname,
+                        employeeProtoUpdate.Password,
+                        employeeProtoUpdate.Login
+                    )
+                {
+                    Id = employeeProtoUpdate.Id
+                }
+                );
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+            finally
+            {
+                var examinationReply = new ExaminationReply { Success = true };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = examinationReply });
             }
         }
 
@@ -180,21 +210,26 @@ namespace TaskListGrpcServer.Services
         {
             try
             {
-                var executor = _employeeRepository.GetById(requestTask.Executor.Id);
+                var executor = _jsonEmployeeRepository.GetByIdAsync(requestTask.Executor.Id);
                 var task = new TaskElement(
                     requestTask.NameTask,
                     requestTask.TaskDescription,
-                    executor,
+                    executor.Result,
                     requestTask.CurrentState,
                     TaskElement.ProtoToTags(requestTask.Tags)
                 )
                 {
                     UniqueId = requestTask.Id
                 };
-                if (_jsonTaskRepository.GetAll().FindIndex(obj => obj.UniqueId == task.UniqueId) != -1)
-                    _jsonTaskRepository.Update(task);
+                if (_jsonTaskRepository.GetAllAsync().Result.FindIndex(obj => obj.UniqueId == task.UniqueId) != -1)
+                    _ = _jsonTaskRepository.UpdateAsync(task);
                 else
                     _jsonTaskRepository.Insert(task);
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
             finally
             {
@@ -205,7 +240,7 @@ namespace TaskListGrpcServer.Services
 
         async Task DataTaskReplies(TaskListGrpcServer.Protos.TaskDataRequest taskDataRequest, IServerStreamWriter<Replies> responseStream)
         {
-            var searchTask = _jsonTaskRepository.GetById(taskDataRequest.RequestTaskId);
+            var searchTask = _jsonTaskRepository.GetByIdAsync(taskDataRequest.RequestTaskId).Result;
             var executorProto = searchTask.ExecutorTask != null ? searchTask.ExecutorTask.ToProtoType() :
                 new Employee().ToProtoType();
             var repliesTask = new TaskProto
@@ -231,10 +266,15 @@ namespace TaskListGrpcServer.Services
                 {
                     TagId = requestTag.Id
                 };
-                if (_jsonTagRepository.GetAll().FindIndex(obj => obj.TagId == tag.TagId) != -1)
-                    _jsonTagRepository.Update(tag);
+                if (_jsonTagRepository.GetAllAsync().Result.FindIndex(obj => obj.TagId == tag.TagId) != -1)
+                    _ = _jsonTagRepository.UpdateAsync(tag);
                 else
                     _jsonTagRepository.Insert(tag);
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
             finally
             {
@@ -248,7 +288,7 @@ namespace TaskListGrpcServer.Services
             var listTagsReplies = new TagsProto();
             try
             {
-                foreach (var item in _jsonTagRepository.GetAll())
+                foreach (var item in _jsonTagRepository.GetAllAsync().Result)
                 {
                     listTagsReplies.ListTag.Add(new TagProto
                     {
@@ -257,6 +297,11 @@ namespace TaskListGrpcServer.Services
                         Id = item.TagId
                     });
                 }
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
             finally
             {
@@ -268,7 +313,7 @@ namespace TaskListGrpcServer.Services
         {
             try
             {
-                _jsonTagRepository.RemoveAt(tagIdDelete);
+                _jsonTagRepository.RemoveAtAsync(tagIdDelete);
             }
             catch (Exception)
             {
@@ -287,7 +332,7 @@ namespace TaskListGrpcServer.Services
             var listEmployeeReplies = new ListEmployeeReply();
             try
             {
-                foreach (var item in _employeeRepository.GetAll())
+                foreach (var item in _jsonEmployeeRepository.GetAllAsync().Result)
                 {
                     listEmployeeReplies.ReplyListEmployee.Add(new ReplyEmployee
                     {
@@ -296,6 +341,11 @@ namespace TaskListGrpcServer.Services
                         Surname = item.Surname
                     });
                 }
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
             finally
             {
