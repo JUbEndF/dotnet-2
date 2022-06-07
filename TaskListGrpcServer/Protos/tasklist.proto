@@ -20,9 +20,9 @@ message TaskProto {
 }
 
 message TagProto {
-		int32 id = 1;
-		string name = 2;
-		int32 color = 3;
+	int32 id = 1;
+	string name = 2;
+	int32 color = 3;
 }
 
 message TagsProto {
@@ -33,8 +33,6 @@ message EmployeeProto{
 	int32 id = 1;
 	string name = 2;
 	string Surname = 3;
-	string login = 4;
-	string password = 5;
 }
 
 // -------
@@ -43,14 +41,10 @@ message EmployeeProto{
 
 message Request{
 	oneof request{
-		LoginRequest login = 1;
-		NewUsers create_user = 3;
-		EmployeeProto edit_user_data = 9;
-		RequestAllEmployee read_existing_users = 12;
+		EmployeeProto user_request = 1;
+		RequestAllEmployee read_existing_users = 2;
 
-
-
-		ListTaskRequest list_data_request = 2;
+		ListTaskRequest list_data_request = 3;
 		TaskProto task_request = 4;
 		TaskDataRequest task_data_request = 5;
 
@@ -58,8 +52,8 @@ message Request{
 		int32 employee_id_delete = 7;
 		int32 tag_id_delete = 8;
 
-		TagProto teg_request = 10;
-		RequestAllTags read_existing_tags = 11;
+		TagProto teg_request = 9;
+		RequestAllTags read_existing_tags = 10;
 	}
 }
 
@@ -71,26 +65,13 @@ message RequestAllTags{
 
 }
 
-message NewUsers{
-	string name = 1;
-	string Surname = 2;
-	string login = 3;
-	string password = 4;
-}
-
 message ListTaskRequest{
 
-}
-
-message LoginRequest {
-  string login = 1;
-  string password = 2;
 }
 
 message TaskDataRequest{
 	int32 Request_task_id = 1;
 }
-
 
 // -------
 // Replies
@@ -103,6 +84,7 @@ message Replies{
 		ListTaskReply list = 3;
 		TagsProto reply_list_tags = 4;
 		ListEmployeeReply reply_list_employee = 5;
+		EmployeeProto user = 6;
 	}
 }
 
@@ -116,12 +98,14 @@ message ListEmployeeReply{
 	repeated ReplyEmployee reply_list_employee = 1;
 }
 
+message ListTask {
+	int32 id = 1;
+    string name_task = 2;
+	string executor = 3;
+}
+
 message ListTaskReply {
-    message ListTask {
-		int32 id = 1;
-        string name_task = 2;
-		string executor = 3;
-    }
+    
     repeated ListTask list = 1;
 }
 

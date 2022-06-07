@@ -33,7 +33,7 @@ namespace TaskListGrpcServer.Repositories
         {
             await DeserializeAsync();
 
-            if (_employee!.FindIndex(ptr => ptr.Login == obj.Login) != -1)
+            if (_employee!.FindIndex(ptr => ptr.Id == obj.Id) != -1)
                 return;
 
             if (_employee.Count == 0)

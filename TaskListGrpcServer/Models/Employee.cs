@@ -26,24 +26,12 @@ namespace TaskListGrpcServer.Models
         public string Surname { get; set; }
 
         /// <summary>
-        /// Password employee
-        /// </summary>
-        private string _password;
-
-        /// <summary>
-        /// LOgin employee
-        /// </summary>
-        public string Login { get; set; }
-
-        /// <summary>
         /// Constructor with user data
         /// </summary>
-        public Employee(string name, string surname, string password, string login)
+        public Employee(string name, string surname)
         {
             Name = name;
             Surname = surname;
-            _password = password;
-            Login = login;
         }
 
         public Employee()
@@ -51,17 +39,11 @@ namespace TaskListGrpcServer.Models
             Id = -1;
             Name = string.Empty;
             Surname = string.Empty;
-            _password = string.Empty;
-            Login = string.Empty;
         }
 
         public EmployeeProto ToProtoType()
         {
-            return new EmployeeProto { Login = Login, Name = Name, Surname = Surname };
+            return new EmployeeProto { Name = Name, Surname = Surname, Id = Id };
         }
-
-
-
-        public bool LoginCheck(string password) => _password == password;
     }
 }

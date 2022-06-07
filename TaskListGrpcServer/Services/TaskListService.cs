@@ -11,8 +11,6 @@ namespace TaskListGrpcServer.Services
 {
     public class TaskListService : TaskList.TaskListBase
     {
-        private readonly ILogger<TaskListService> _logger;
-
         private readonly ConcurrentDictionary<int, Employee> _users = new();
 
         private readonly JSONEmployeeRepository _jsonEmployeeRepository;
@@ -23,7 +21,6 @@ namespace TaskListGrpcServer.Services
 
         public TaskListService(ILogger<TaskListService> logger)
         {
-            _logger = logger;
             _jsonEmployeeRepository = new JSONEmployeeRepository();
             _jsonTagRepository = new JSONTagRepository();
             _jsonTaskRepository = new JSONTaskRepository();
@@ -33,21 +30,8 @@ namespace TaskListGrpcServer.Services
             IServerStreamWriter<Replies> responseStream,
             ServerCallContext context)
         {
-            if (!await requestStream.MoveNext())
-                return;
-
-            if (requestStream.Current.RequestCase != Request.RequestOneofCase.Login && requestStream.Current.RequestCase != Request.RequestOneofCase.CreateUser)
-                return;
-            var user = requestStream.Current.RequestCase == Request.RequestOneofCase.Login ?
-                Login(requestStream.Current.Login, responseStream) :
-                Registration(requestStream.Current.CreateUser, responseStream);
             try
             {
-                var loginReply = new ExaminationReply { Success = user is not null };
-                await responseStream.WriteAsync(new Replies { ExaminationReply = loginReply });
-                if (user is null)
-                    return;
-
                 while (await requestStream.MoveNext())
                 {
                     switch (requestStream.Current.RequestCase)
@@ -81,40 +65,46 @@ namespace TaskListGrpcServer.Services
                         case Request.RequestOneofCase.ReadExistingUsers:
                             await ListEmployeeReplies(requestStream.Current.ReadExistingUsers, responseStream);
                             break;
-                        case Request.RequestOneofCase.EditUserData:
-                            await EditUserData(requestStream.Current.EditUserData, responseStream);
+                        case Request.RequestOneofCase.UserRequest:
+                            await RequestEmployee(requestStream.Current.UserRequest, responseStream);
                             break;
                         default: throw new ApplicationException();
                     }
                 }
             }
-            finally
+            catch (Exception)
             {
-                if (user is not null)
-                    _users.TryRemove(user.Id, out _);
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
             }
         }
 
-        Employee? Login(LoginRequest loginRequest, IServerStreamWriter<Replies> responseStream)
+        async Task RequestEmployee(EmployeeProto requestEmployee, IServerStreamWriter<Replies> responseStream)
         {
-            var employees = _jsonEmployeeRepository.GetAllAsync();
-            var user = employees.Result.Find(obj => obj.Login == loginRequest.Login);
-            if (user is null)
-                return null;
-            _users.TryAdd(user!.Id, user);
-            if (user!.LoginCheck(loginRequest.Password))
-                return user;
-            return null;
-        }
-
-        Employee? Registration(NewUsers newUserRequest, IServerStreamWriter<Replies> responseStream)
-        {
-            var employee = new Employee(newUserRequest.Name, newUserRequest.Surname,
-                newUserRequest.Password, newUserRequest.Login);
-            _jsonEmployeeRepository.Insert(employee);
-            var employees = _jsonEmployeeRepository.GetAllAsync();
-            var user = employees.Result.Find(obj => obj.Login == employee.Login);
-            return user;
+            try
+            {
+                var emloyee = new Employee(
+                    requestEmployee.Name,
+                    requestEmployee.Surname
+                )
+                {
+                    Id = requestEmployee.Id
+                };
+                if (_jsonEmployeeRepository.GetAllAsync().Result.FindIndex(obj => obj.Id == emloyee.Id) != -1)
+                    _ = _jsonEmployeeRepository.UpdateAsync(emloyee);
+                else
+                    _jsonEmployeeRepository.Insert(emloyee);
+            }
+            catch (Exception)
+            {
+                var message = new ExaminationReply { Success = false };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
+            }
+            finally
+            {
+                var examinationReply = new ExaminationReply { Success = true };
+                await responseStream.WriteAsync(new Replies { ExaminationReply = examinationReply });
+            }
         }
 
         async void DeleteTask(int taskIdDelete, IServerStreamWriter<Replies> responseStream)
@@ -160,7 +150,7 @@ namespace TaskListGrpcServer.Services
             {
                 foreach (var item in _jsonTaskRepository.GetAllAsync().Result)
                 {
-                    listRepliesTask.List.Add(new ListTaskReply.Types.ListTask
+                    listRepliesTask.List.Add(new ListTask
                     {
                         Id = item.UniqueId,
                         Executor = item.ExecutorTask.Surname,
@@ -179,42 +169,16 @@ namespace TaskListGrpcServer.Services
             }
         }
 
-        async Task EditUserData(EmployeeProto employeeProtoUpdate, IServerStreamWriter<Replies> responseStream)
-        {
-            try
-            {
-                await _jsonEmployeeRepository.UpdateAsync(new Employee(
-                        employeeProtoUpdate.Name,
-                        employeeProtoUpdate.Surname,
-                        employeeProtoUpdate.Password,
-                        employeeProtoUpdate.Login
-                    )
-                {
-                    Id = employeeProtoUpdate.Id
-                }
-                );
-            }
-            catch (Exception)
-            {
-                var message = new ExaminationReply { Success = false };
-                await responseStream.WriteAsync(new Replies { ExaminationReply = message });
-            }
-            finally
-            {
-                var examinationReply = new ExaminationReply { Success = true };
-                await responseStream.WriteAsync(new Replies { ExaminationReply = examinationReply });
-            }
-        }
-
         async Task RequestTask(TaskProto requestTask, IServerStreamWriter<Replies> responseStream)
         {
             try
             {
-                var executor = _jsonEmployeeRepository.GetByIdAsync(requestTask.Executor.Id);
+                var executor = _jsonEmployeeRepository.GetByIdAsync(requestTask.Executor.Id).Result;
+                executor ??= new Employee(); 
                 var task = new TaskElement(
                     requestTask.NameTask,
                     requestTask.TaskDescription,
-                    executor.Result,
+                    executor,
                     requestTask.CurrentState,
                     TaskElement.ProtoToTags(requestTask.Tags)
                 )

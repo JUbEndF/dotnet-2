@@ -5,8 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskListWpfClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="MainWindow" MinHeight="560" MinWidth="1000" Height="575" Width="1081">
+
+    <Window.Resources>
+
+    </Window.Resources>
+    <Grid Background="Beige">
+        <ListBox HorizontalAlignment="Left" MinWidth="240" ItemsSource="{Binding Tasks}" Background="GreenYellow">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" Name="Task_name"/>
+                            <ColumnDefinition Width="120" Name="Executor"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding NameTask}" Grid.Column="0" TextBlock.Foreground="Black"/>
+                        <TextBlock Text="{Binding Executor}" Grid.Column="1" TextBlock.Foreground="Black"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Delete" HorizontalAlignment="Left" Height="40" Margin="245,10,0,0" VerticalAlignment="Top" Width="85" Click="Delete_Click"/>
+        <Button Content="Create" HorizontalAlignment="Left" Height="40" Margin="245,55,0,0" VerticalAlignment="Top" Width="85" Click="Create_Click"/>
+        <Button Content="Update List" HorizontalAlignment="Left" Height="40" Margin="245,100,0,0" VerticalAlignment="Top" Width="85" Click="Update_Click"/>
     </Grid>
 </Window>
