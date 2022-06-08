@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskListWpfClient"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="560" MinWidth="1000" Height="575" Width="1081">
+        Title="MainWindow" MinHeight="560" MinWidth="1000" Height="575" Width="960">
 
     <Window.Resources>
 

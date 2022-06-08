@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Grpc.Net.Client;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskListGrpcServer.Protos;
 
 namespace TaskListWpfClient.ViewModels
 {
     public class MainViewModel
     {
-        public ObservableCollection<ListTask> Tasks { get; set; } = new();
+        public ObservableCollection<ListTaskElement> Tasks { get; set; } = new();
+
+        private TaskList.TaskListClient _client = new(GrpcChannel.ForAddress("https://localhost:5001"));
 
         public MainViewModel()
         {

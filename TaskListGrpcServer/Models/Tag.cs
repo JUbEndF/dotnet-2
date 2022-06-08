@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using TaskListGrpcServer.Protos;
+﻿using TaskListGrpcServer.Protos;
 
 namespace TaskListGrpcServer.Models
 {
@@ -7,7 +6,6 @@ namespace TaskListGrpcServer.Models
     /// Class describing the structure of tags for tasks
     /// </summary>
     [System.Serializable]
-    [ProtoContract]
     public class Tag
     {
         /// <summary>

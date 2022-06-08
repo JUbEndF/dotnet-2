@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskListGrpcServer", "TaskListGrpcServer\TaskListGrpcServer.csproj", "{13893767-E806-4BDE-8BAF-7F8827105812}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskListWpfClient", "TaskListWpfClient\TaskListWpfClient.csproj", "{E9F86BA7-8F37-4F26-8AAD-0A2CD8B72BCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskListWpfClient", "TaskListWpfClient\TaskListWpfClient.csproj", "{E9F86BA7-8F37-4F26-8AAD-0A2CD8B72BCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

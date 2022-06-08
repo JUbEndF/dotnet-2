@@ -98,7 +98,7 @@ message ListEmployeeReply{
 	repeated ReplyEmployee reply_list_employee = 1;
 }
 
-message ListTask {
+message ListTaskElement {
 	int32 id = 1;
     string name_task = 2;
 	string executor = 3;
@@ -106,7 +106,7 @@ message ListTask {
 
 message ListTaskReply {
     
-    repeated ListTask list = 1;
+    repeated ListTaskElement list = 1;
 }
 
 message ExaminationReply {

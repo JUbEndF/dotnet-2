@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using TaskListGrpcServer.Protos;
+﻿using TaskListGrpcServer.Protos;
 
 namespace TaskListGrpcServer.Models
 {
@@ -7,7 +6,6 @@ namespace TaskListGrpcServer.Models
     /// Class describing performers and storing their data
     /// </summary>
     [System.Serializable]
-    [ProtoContract]
     public class Employee
     {
         /// <summary>

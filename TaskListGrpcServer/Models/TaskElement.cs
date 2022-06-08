@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TaskListGrpcServer.Protos;
 
 namespace TaskListGrpcServer.Models
@@ -8,7 +7,6 @@ namespace TaskListGrpcServer.Models
     /// Class describing the task
     /// </summary>
     [System.Serializable]
-    [ProtoContract]
     public class TaskElement
     {
         /// <summary>

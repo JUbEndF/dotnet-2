@@ -150,7 +150,7 @@ namespace TaskListGrpcServer.Services
             {
                 foreach (var item in _jsonTaskRepository.GetAllAsync().Result)
                 {
-                    listRepliesTask.List.Add(new ListTask
+                    listRepliesTask.List.Add(new ListTaskElement
                     {
                         Id = item.UniqueId,
                         Executor = item.ExecutorTask.Surname,
@@ -174,7 +174,7 @@ namespace TaskListGrpcServer.Services
             try
             {
                 var executor = _jsonEmployeeRepository.GetByIdAsync(requestTask.Executor.Id).Result;
-                executor ??= new Employee(); 
+                executor ??= new Employee();
                 var task = new TaskElement(
                     requestTask.NameTask,
                     requestTask.TaskDescription,
@@ -202,7 +202,7 @@ namespace TaskListGrpcServer.Services
             }
         }
 
-        async Task DataTaskReplies(TaskListGrpcServer.Protos.TaskDataRequest taskDataRequest, IServerStreamWriter<Replies> responseStream)
+        async Task DataTaskReplies(TaskDataRequest taskDataRequest, IServerStreamWriter<Replies> responseStream)
         {
             var searchTask = _jsonTaskRepository.GetByIdAsync(taskDataRequest.RequestTaskId).Result;
             var executorProto = searchTask.ExecutorTask != null ? searchTask.ExecutorTask.ToProtoType() :
