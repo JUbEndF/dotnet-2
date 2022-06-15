@@ -32,6 +32,13 @@ namespace TaskListGrpcServer.Models
             Surname = surname;
         }
 
+        public Employee(EmployeeProto employeeProto)
+        {
+            Id = employeeProto.Id;
+            Name = employeeProto.Name;
+            Surname = employeeProto.Surname;
+        }
+
         public Employee()
         {
             Id = -1;

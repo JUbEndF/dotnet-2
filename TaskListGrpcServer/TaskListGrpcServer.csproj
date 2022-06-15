@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\tasklist.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\tasklist.proto" GrpcServices="Both" />
   </ItemGroup>
 
   <ItemGroup>

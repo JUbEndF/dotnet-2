@@ -11,7 +11,7 @@ namespace TaskListGrpcServer.Models
         /// <summary>
         /// Unique Tag id 
         /// </summary>
-        public int TagId { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Name tag
@@ -34,14 +34,21 @@ namespace TaskListGrpcServer.Models
 
         public Tag(int id, string tagName, int color)
         {
-            TagId = id;
+            Id = id;
             TagName = tagName;
             Color = color;
         }
 
+        public Tag(TagProto tagProto)
+        {
+            Id = tagProto.Id;
+            TagName = tagProto.Name;
+            Color = tagProto.Color;
+        }
+
         public TagProto TagToProto()
         {
-            return new TagProto { Color = Color, Id = TagId, Name = TagName };
+            return new TagProto { Color = Color, Id = Id, Name = TagName };
         }
 
         public bool Equals(Tag tag) => TagName == tag.TagName;

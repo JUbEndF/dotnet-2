@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
@@ -13,7 +13,7 @@ namespace TaskListGrpcServer.Repositories
     {
         private readonly string _fileName = "employee.json";
 
-        private List<Employee>? _employee = new();
+        private List<Employee>? _employee;
 
         private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
@@ -29,14 +29,11 @@ namespace TaskListGrpcServer.Repositories
             return _employee!.FirstOrDefault(obj => obj.Id == id)!;
         }
 
-        public async void Insert(Employee obj)
+        public async Task<Employee> Insert(Employee obj)
         {
             await DeserializeAsync();
 
-            if (_employee!.FindIndex(ptr => ptr.Id == obj.Id) != -1)
-                return;
-
-            if (_employee.Count == 0)
+            if (_employee!.Count == 0)
             {
                 obj.Id = 1;
                 _employee.Add(obj);
@@ -53,8 +50,8 @@ namespace TaskListGrpcServer.Repositories
                     }
                 }
             }
-
             await SerializeAsync();
+            return _employee.Find(ptr => ptr.Id == obj.Id)!;
         }
 
         public async void RemoveAllAsync()
@@ -84,28 +81,26 @@ namespace TaskListGrpcServer.Repositories
 
         private async Task DeserializeAsync()
         {
-            if (_employee != null)
-                return;
             await _semaphoreSlim.WaitAsync();
             if (!File.Exists(_fileName))
             {
                 _employee = new List<Employee>();
+                _semaphoreSlim.Release();
+                return;
             }
             try
             {
-                if (File.Exists(_fileName))
+                using FileStream? fileStream = File.OpenRead(_fileName);
                 {
-                    await using FileStream stream = File.Open(_fileName, FileMode.Open);
-                    _employee = await JsonSerializer.DeserializeAsync<List<Employee>>(stream);
+                    var serializer = new DataContractJsonSerializer(typeof(List<Employee>));
+                    _employee = (List<Employee>)serializer.ReadObject(fileStream)!;
                 }
+                _semaphoreSlim.Release();
             }
             catch
             {
                 Console.Write("An error occurred while reading the file\n");
                 _employee = new List<Employee>();
-            }
-            finally
-            {
                 _semaphoreSlim.Release();
             }
         }
@@ -115,8 +110,9 @@ namespace TaskListGrpcServer.Repositories
             await _semaphoreSlim.WaitAsync();
             try
             {
-                await using FileStream streamMessage = File.Create(_fileName);
-                await JsonSerializer.SerializeAsync<List<Employee>>(streamMessage, _employee!, new JsonSerializerOptions { WriteIndented = true });
+                using FileStream? fileStream = new(_fileName, FileMode.Create);
+                DataContractJsonSerializer formatter = new(typeof(List<Employee>));
+                formatter.WriteObject(fileStream, _employee);
             }
             finally
             {

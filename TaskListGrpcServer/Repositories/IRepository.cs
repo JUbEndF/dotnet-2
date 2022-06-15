@@ -27,7 +27,7 @@ namespace TaskListGrpcServer.Repositories
         /// Inserting an element
         /// </summary>
         /// <param name="obj">add element</param>
-        void Insert(T obj);
+        Task<T> Insert(T obj);
 
         /// <summary>
         /// Remove an element by its id

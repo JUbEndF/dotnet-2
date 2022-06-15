@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
@@ -20,31 +20,31 @@ namespace TaskListGrpcServer.Repositories
         public async Task<List<Tag>> GetAllAsync()
         {
             await DeserializeAsync();
-            return _tags;
+            return _tags!;
         }
 
         public async Task<Tag> GetByIdAsync(int id)
         {
             await DeserializeAsync();
-            return _tags.FirstOrDefault(obj => obj.TagId == id)!;
+            return _tags!.FirstOrDefault(obj => obj.Id == id)!;
         }
 
-        public async void Insert(Tag obj)
+        public async Task<Tag> Insert(Tag obj)
         {
             await DeserializeAsync();
 
-            if (_tags.Count == 0)
+            if (_tags!.Count == 0)
             {
-                obj.TagId = 1;
+                obj.Id = 1;
                 _tags.Add(obj);
             }
             else
             {
                 for (int i = 1; i <= _tags.Count + 1; i++)
                 {
-                    if (_tags.FindIndex(ibj => obj.TagId == i) == -1)
+                    if (_tags.FindIndex(ptr => ptr.Id == i) == -1)
                     {
-                        obj.TagId = i;
+                        obj.Id = i;
                         _tags.Add(obj);
                         break;
                     }
@@ -52,26 +52,27 @@ namespace TaskListGrpcServer.Repositories
             }
 
             await SerializeAsync();
+            return _tags.Find(ptr => ptr.Id == obj.Id)!;
         }
 
         public async void RemoveAllAsync()
         {
             await DeserializeAsync();
-            _tags.Clear();
+            _tags!.Clear();
             await SerializeAsync();
         }
 
         public async void RemoveAtAsync(int id)
         {
             await DeserializeAsync();
-            _tags.Remove(_tags.Find(obj => obj.TagId == id)!);
+            _tags!.Remove(_tags.Find(obj => obj.Id == id)!);
             await SerializeAsync();
         }
 
         public async Task<bool> UpdateAsync(Tag executorUpdate)
         {
             await DeserializeAsync();
-            var index = _tags.FindIndex(obj => obj.TagId == executorUpdate.TagId);
+            var index = _tags!.FindIndex(obj => obj.Id == executorUpdate.Id);
             if (index != -1)
                 _tags[index] = executorUpdate;
             else return false;
@@ -81,17 +82,20 @@ namespace TaskListGrpcServer.Repositories
 
         private async Task DeserializeAsync()
         {
-            if (_tags != null)
-                return;
             await _semaphoreSlim.WaitAsync();
             if (!File.Exists(_fileName))
             {
                 _tags = new List<Tag>();
+                _semaphoreSlim.Release();
+                return;
             }
             try
             {
-                await using FileStream streamMessage = File.Create(_fileName);
-                await JsonSerializer.SerializeAsync<List<Tag>>(streamMessage, _tags!, new JsonSerializerOptions { WriteIndented = true });
+                using FileStream? fileStream = File.OpenRead(_fileName);
+                {
+                    var serializer = new DataContractJsonSerializer(typeof(List<Tag>));
+                    _tags = (List<Tag>)serializer.ReadObject(fileStream)!;
+                }
                 _semaphoreSlim.Release();
             }
             catch
@@ -107,8 +111,9 @@ namespace TaskListGrpcServer.Repositories
             await _semaphoreSlim.WaitAsync();
             try
             {
-                await using FileStream streamMessage = File.Create(_fileName);
-                await JsonSerializer.SerializeAsync<List<Tag>>(streamMessage, _tags, new JsonSerializerOptions { WriteIndented = true });
+                using FileStream? fileStream = new(_fileName, FileMode.Create);
+                DataContractJsonSerializer formatter = new(typeof(List<Tag>));
+                formatter.WriteObject(fileStream, _tags);
             }
             finally
             {

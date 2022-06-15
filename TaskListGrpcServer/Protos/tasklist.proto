@@ -3,7 +3,20 @@ syntax = "proto3";
 package TaskListGrpcServer.Protos;
 
 service TaskList {
-  rpc Work (stream Request) returns (stream Replies);
+  rpc GetAllTask (NullRequest) returns (ListTaskReply);
+  rpc AddTask (TaskProto) returns (TaskProtoReply);
+  rpc DeleteTask (TaskProto) returns (ExaminationReply);
+  rpc UpdateTask (TaskProto) returns (ExaminationReply);
+
+  rpc GetAllTag (NullRequest) returns (TagsProto);
+  rpc AddTag (TagProto) returns (TagProtoReply);
+  rpc DeleteTag (TagProto) returns (ExaminationReply);
+  rpc UpdateTag (TagProto) returns (ExaminationReply);
+
+  rpc GetAllEmployee (NullRequest) returns (ListEmployeeReply);
+  rpc AddEmployee (EmployeeProto) returns (EmployeeProtoReply);
+  rpc DeleteEmployee (EmployeeProto) returns (ExaminationReply);
+  rpc UpdateEmployee (EmployeeProto) returns (ExaminationReply);
 }
 
 // ------------
@@ -35,88 +48,47 @@ message EmployeeProto{
 	string Surname = 3;
 }
 
-// -------
-// Request
-// -------
-
-message Request{
-	oneof request{
-		EmployeeProto user_request = 1;
-		RequestAllEmployee read_existing_users = 2;
-
-		ListTaskRequest list_data_request = 3;
-		TaskProto task_request = 4;
-		TaskDataRequest task_data_request = 5;
-
-		int32 task_id_delete = 6;
-		int32 employee_id_delete = 7;
-		int32 tag_id_delete = 8;
-
-		TagProto teg_request = 9;
-		RequestAllTags read_existing_tags = 10;
-	}
-}
-
-message RequestAllEmployee{
-
-}
-
-message RequestAllTags{
-
-}
-
-message ListTaskRequest{
-
-}
-
-message TaskDataRequest{
-	int32 Request_task_id = 1;
-}
-
-// -------
-// Replies
-// -------
-
-message Replies{
-	oneof reply{
-		ExaminationReply examination_reply = 1;
-		TaskProto reply_task = 2;
-		ListTaskReply list = 3;
-		TagsProto reply_list_tags = 4;
-		ListEmployeeReply reply_list_employee = 5;
-		EmployeeProto user = 6;
-	}
-}
-
-message ReplyEmployee{
-	int32 id = 1;
-	string name = 2;
-	string surname = 3;
-}
-
-message ListEmployeeReply{
-	repeated ReplyEmployee reply_list_employee = 1;
-}
-
-message ListTaskElement {
-	int32 id = 1;
-    string name_task = 2;
-	string executor = 3;
-}
-
-message ListTaskReply {
-    
-    repeated ListTaskElement list = 1;
-}
-
-message ExaminationReply {
-  bool success = 1;
-}
-
 enum Status {
   NEW = 0;
   ASSIGNED = 1;
   DISCUSSION = 2;
   COMPLETED = 3;
   CLOSED = 4;
+}
+
+// -------
+// Request
+// -------
+
+message NullRequest{}
+
+// -------
+// Replies
+// -------
+
+message ExaminationReply {
+  bool success = 1;
+}
+
+message TagProtoReply{
+	ExaminationReply error = 1;
+	TagProto tag = 2;
+}
+
+message TaskProtoReply{
+	ExaminationReply error = 1;
+	TaskProto task = 2;
+}
+
+message EmployeeProtoReply{
+	ExaminationReply error = 1;
+	EmployeeProto employee = 2;
+}
+
+message ListEmployeeReply{
+	repeated EmployeeProto reply_list_employee = 1;
+}
+
+message ListTaskReply {
+    repeated TaskProto list = 1;
 }
