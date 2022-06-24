@@ -3,19 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TaskListWpfClient"
+        xmlns:viewmodel="clr-namespace:TaskListWpfClient.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="560" MinWidth="500" Height="436" Width="302">
+        Title="MainWindow" MinHeight="514" MinWidth="1064" Height="417" Width="787">
 
     <Window.Resources>
 
     </Window.Resources>
-    <Grid Background="Beige">
+
+    <Grid Background="Beige" Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="38*"/>
-            <ColumnDefinition Width="87*"/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <ListBox MinWidth="240" ItemsSource="{Binding Tasks}" Background="GreenYellow" Margin="0,100,260,0" Grid.ColumnSpan="2">
+        <ListBox MinWidth="240" ItemsSource="{Binding TasksRelevant}" SelectedItem="{Binding SelectTask}" Background="GreenYellow" Margin="0,100,0,0" HorizontalAlignment="Left" Width="267">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -29,10 +30,58 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Content="Delete" Margin="0,10,165,0" Click="Delete_Click" Grid.Column="1" HorizontalAlignment="Right" Width="85" Height="40" VerticalAlignment="Top"/>
-        <Button Content="Create" Margin="0,55,165,0" Click="Create_Click" Grid.Column="1" HorizontalAlignment="Right" Width="85" Height="40" VerticalAlignment="Top"/>
-        <Button Content="Update List" Margin="0,100,165,0" Click="Update_Click" Grid.Column="1" HorizontalAlignment="Right" Width="85" Height="40" VerticalAlignment="Top"/>
-        <ComboBox HorizontalAlignment="Right" Margin="0,10,5,0" Width="141" SelectionChanged="ComboBox_SelectionChanged" Grid.Column="1" Height="40" VerticalAlignment="Top"/>
-        <ComboBox Grid.Column="1" HorizontalAlignment="Right" Margin="0,55,5,0" Width="141" Height="40" VerticalAlignment="Top" ItemsSource="{Binding Emploees}"/>
+        <Button Content="Delete" Margin="10,10,0,0" Command="{Binding DeteleCommand}" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Width="103"/>
+        <Button Content="Create" Margin="10,55,0,0" Command="{Binding CreateTaskCommand}" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Width="103"/>
+        <Button Content="Update database" Margin="277,100,0,0" Command="{Binding UpdateCommand}" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Width="122"/>
+        <ComboBox Margin="282,154,0,0" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140">
+            <ComboBoxItem DataContext="0" IsSelected="True">All</ComboBoxItem>
+            <ComboBoxItem DataContext="1">1. NEW</ComboBoxItem>
+            <ComboBoxItem DataContext="2">2. ASSIGNED</ComboBoxItem>
+            <ComboBoxItem DataContext="3">3. DISCUSSION</ComboBoxItem>
+            <ComboBoxItem DataContext="4">4. COMPLETED</ComboBoxItem>
+            <ComboBoxItem DataContext="5">5. CLOSED</ComboBoxItem>
+        </ComboBox>
+        <ComboBox ItemsSource="{Binding Employees}" SelectedItem="{Binding TasksSearchSelectEmployee}" Margin="282,199,0,0" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Surname}" Grid.Column="0" TextBlock.Foreground="Black"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ListBox ItemsSource="{Binding Tags}" SelectedItem="{Binding TasksSearchSelectTags}" Margin="282,244,0,0" Name="listTopics" Height="147" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140">
+            <ListBox.ItemTemplate>
+                <HierarchicalDataTemplate>
+                    <CheckBox Content="{Binding Name}"/>
+                </HierarchicalDataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox MinWidth="240" ItemsSource="{Binding Employees}" Background="GreenYellow" Margin="537,100,0,0" HorizontalAlignment="Left" Width="246">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" x:Name="Task_name"/>
+                            <ColumnDefinition Width="120" x:Name="Executor"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Surname}" Grid.Column="0" TextBlock.Foreground="Black"/>
+                        <TextBlock Text="{Binding Name}" Grid.Column="1" TextBlock.Foreground="Black"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox MinWidth="240" ItemsSource="{Binding Tags}" SelectedItem="{Binding SelectTag}" Background="GreenYellow" Margin="796,100,0,0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" x:Name="Task_name"/>
+                            <ColumnDefinition Width="120" x:Name="Executor"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" Grid.Column="0" TextBlock.Foreground="Black"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Change" Height="40" Margin="136,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="126"/>
     </Grid>
 </Window>

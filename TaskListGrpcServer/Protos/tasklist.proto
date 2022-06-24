@@ -8,7 +8,7 @@ service TaskList {
   rpc DeleteTask (TaskProto) returns (ExaminationReply);
   rpc UpdateTask (TaskProto) returns (ExaminationReply);
 
-  rpc GetAllTag (NullRequest) returns (TagsProto);
+  rpc GetAllTag (NullRequest) returns (ListTagReply);
   rpc AddTag (TagProto) returns (TagProtoReply);
   rpc DeleteTag (TagProto) returns (ExaminationReply);
   rpc UpdateTag (TagProto) returns (ExaminationReply);
@@ -32,10 +32,13 @@ message TaskProto {
 	TagsProto tags = 6;
 }
 
+message Tasks{
+	repeated TaskProto list = 2;
+}
+
 message TagProto {
 	int32 id = 1;
 	string name = 2;
-	int32 color = 3;
 }
 
 message TagsProto {
@@ -46,6 +49,10 @@ message EmployeeProto{
 	int32 id = 1;
 	string name = 2;
 	string Surname = 3;
+}
+
+message EmployeesProto{
+	repeated EmployeeProto reply_list_employee = 1;
 }
 
 enum Status {
@@ -86,9 +93,16 @@ message EmployeeProtoReply{
 }
 
 message ListEmployeeReply{
-	repeated EmployeeProto reply_list_employee = 1;
+	bool success = 1;
+	EmployeesProto employeeslist = 2; 
 }
 
 message ListTaskReply {
-    repeated TaskProto list = 1;
+	bool success = 1;
+    Tasks taskslist = 2;
+}
+
+message ListTagReply {
+	bool success = 1;
+    TagsProto Tagslist = 2;
 }

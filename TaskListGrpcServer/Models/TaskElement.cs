@@ -89,7 +89,7 @@ namespace TaskListGrpcServer.Models
         {
             var tags = new TagsProto();
             foreach (var tag in ListTags)
-                tags.ListTag.Add(new TagProto { Color = tag.Color, Id = tag.Id, Name = tag.TagName });
+                tags.ListTag.Add(new TagProto { Id = tag.Id, Name = tag.TagName });
             return tags;
         }
 
@@ -97,7 +97,7 @@ namespace TaskListGrpcServer.Models
         {
             var tags = new List<Tag>();
             foreach (var tag in tagsProto.ListTag)
-                tags.Add(new Tag(tag.Id, tag.Name, tag.Color));
+                tags.Add(new Tag(tag.Id, tag.Name));
             return tags;
         }
     }

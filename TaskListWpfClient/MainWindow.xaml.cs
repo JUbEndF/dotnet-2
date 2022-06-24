@@ -13,25 +13,5 @@ namespace TaskListWpfClient
             InitializeComponent();
             DataContext = new MainViewModel();
         }
-
-        private void Update_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Create_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-
-        }
     }
 }

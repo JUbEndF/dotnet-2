@@ -25,7 +25,7 @@ namespace TaskListWpfClient.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:5000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:5001")]
         public string Host {
             get {
                 return ((string)(this["Host"]));

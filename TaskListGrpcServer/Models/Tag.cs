@@ -19,36 +19,34 @@ namespace TaskListGrpcServer.Models
         public string TagName { get; set; }
 
         /// <summary>
-        /// The color to display the background of the tag
-        /// </summary>
-        public int Color { get; set; }
-
-        /// <summary>
         /// Constructor with tag data
         /// </summary>
-        public Tag(string tagName, int color)
+        public Tag(string tagName)
         {
             TagName = tagName;
-            Color = color;
         }
 
-        public Tag(int id, string tagName, int color)
+        public Tag(int id, string tagName)
         {
             Id = id;
             TagName = tagName;
-            Color = color;
         }
 
         public Tag(TagProto tagProto)
         {
             Id = tagProto.Id;
             TagName = tagProto.Name;
-            Color = tagProto.Color;
+        }
+
+        public Tag()
+        {
+            Id = -1;
+            TagName = string.Empty;
         }
 
         public TagProto TagToProto()
         {
-            return new TagProto { Color = Color, Id = Id, Name = TagName };
+            return new TagProto { Id = Id, Name = TagName };
         }
 
         public bool Equals(Tag tag) => TagName == tag.TagName;

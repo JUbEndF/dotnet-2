@@ -112,7 +112,7 @@ namespace TaskListGrpcServer.Repositories
             try
             {
                 using FileStream? fileStream = new(_fileName, FileMode.Create);
-                DataContractJsonSerializer formatter = new(typeof(List<TaskElement>));
+                DataContractJsonSerializer formatter = new(typeof(List<TaskElement>), new DataContractJsonSerializerSettings() { UseSimpleDictionaryFormat = true });
                 formatter.WriteObject(fileStream, _tasks);
             }
             finally

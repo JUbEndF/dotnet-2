@@ -1,4 +1,5 @@
 using Grpc.Core;
+using System;
 using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
 using TaskListGrpcServer.Protos;
@@ -153,32 +154,56 @@ namespace TaskListGrpcServer.Services
 
         public override Task<ListEmployeeReply> GetAllEmployee(NullRequest request, ServerCallContext context)
         {
-            var employeeListReply = new ListEmployeeReply();
-            foreach (var employee in _jsonEmployeeRepository.GetAllAsync().Result)
+            try
             {
-                employeeListReply.ReplyListEmployee.Add(employee.ToProtoType());
+                var employeeListReply = new EmployeesProto();
+                foreach (var employee in _jsonEmployeeRepository.GetAllAsync().Result)
+                {
+                    employeeListReply.ReplyListEmployee.Add(employee.ToProtoType());
+                }
+                return Task.FromResult(new ListEmployeeReply { Employeeslist = employeeListReply, Success = true });
             }
-            return Task.FromResult(employeeListReply);
+            catch (Exception)
+            {
+                var list = new EmployeesProto();
+                return Task.FromResult(new ListEmployeeReply { Success = false, Employeeslist = list });
+            }
         }
 
-        public override Task<TagsProto> GetAllTag(NullRequest request, ServerCallContext context)
+        public override Task<ListTagReply> GetAllTag(NullRequest request, ServerCallContext context)
         {
-            var tagListReply = new TagsProto();
-            foreach (var tag in _jsonTagRepository.GetAllAsync().Result)
+            try
             {
-                tagListReply.ListTag.Add(tag.TagToProto());
+                var tagListReply = new TagsProto();
+                foreach (var tag in _jsonTagRepository.GetAllAsync().Result)
+                {
+                    tagListReply.ListTag.Add(tag.TagToProto());
+                }
+                return Task.FromResult(new ListTagReply { Tagslist = tagListReply, Success = true });
             }
-            return Task.FromResult(tagListReply);
+            catch (Exception)
+            {
+                var list = new TagsProto();
+                return Task.FromResult(new ListTagReply { Success = false, Tagslist = list });
+            }
         }
 
         public override Task<ListTaskReply> GetAllTask(NullRequest request, ServerCallContext context)
         {
-            var tagListReply = new ListTaskReply();
-            foreach (var task in _jsonTaskRepository.GetAllAsync().Result)
+            try
             {
-                tagListReply.List.Add(task.ToProto());
+                var taskListReply = new Tasks();
+                foreach (var task in _jsonTaskRepository.GetAllAsync().Result)
+                {
+                    taskListReply.List.Add(task.ToProto());
+                }
+                return Task.FromResult(new ListTaskReply { Taskslist = taskListReply, Success = true });
             }
-            return Task.FromResult(tagListReply);
+            catch (Exception)
+            {
+                var list = new Tasks();
+                return Task.FromResult(new ListTaskReply { Success = false, Taskslist = list });
+            }
         }
 
         public override async Task<ExaminationReply> UpdateEmployee(EmployeeProto request, ServerCallContext context)
