@@ -12,101 +12,61 @@
 
     <Grid Background="Beige" Margin="0,0,0,-6">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="342*"/>
+            <ColumnDefinition Width="171*"/>
+            <ColumnDefinition Width="281*"/>
+            <ColumnDefinition Width="271*"/>
         </Grid.ColumnDefinitions>
         <DataGrid MinWidth="240" 
-                  ItemsSource="{Binding Tasks}" 
+                  ItemsSource="{Binding TasksRelevant}" 
                   IsReadOnly="True" 
                   SelectedItem="{Binding SelectTask}" 
                   Background="GreenYellow" 
-                  Margin="0,100,0,0" 
-                  HorizontalAlignment="Left" 
-                  Width="335">
-            <DataGrid.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" Name="Task_name"/>
-                            <ColumnDefinition Width="120" Name="Executor"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding NameTask}" 
-                                   Grid.Column="0" 
-                                   TextBlock.Foreground="Black"/>
-                        
-                        <TextBlock Text="{Binding Executor.Surname}" 
-                                   Grid.Column="1" 
-                                   TextBlock.Foreground="Black"/>
-                    </Grid>
-                </DataTemplate>
-            </DataGrid.ItemTemplate>
-        </DataGrid>
-        <Button Content="Delete" 
-                Margin="10,10,0,0" 
-                Command="{Binding DeteleCommand}" 
-                Height="40" 
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Left" 
-                Width="103"/>
-        
-        <Button Content="Create" 
-                Margin="10,55,0,0" 
-                Command="{Binding CreateTaskCommand}" 
-                Height="40" 
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Left"
-                Width="103"/>
-        
+                  Margin="0,100,7,0"/>
+        <Button Content="Delete Task" 
+                Margin="12,35,20,0" 
+                Command="{Binding DeteleCommandTask}" 
+                Height="20" 
+                VerticalAlignment="Top"/>
+
+        <Button Content="Create Task" 
+                Margin="12,60,20,0" 
+                Command="{Binding CreateCommandTask}" 
+                Height="20" 
+                VerticalAlignment="Top" />
+
         <Button Content="Update database" 
-                Margin="340,100,0,0" 
+                Margin="12,10,10,0" 
                 Command="{Binding UpdateCommand}" 
-                Height="40" VerticalAlignment="Top" 
-                HorizontalAlignment="Left" 
-                Width="122"/>
-        <ComboBox Margin="345,154,0,0" 
+                Height="20" VerticalAlignment="Top" Grid.Column="1"/>
+        <ComboBox Margin="12,218,19,0" 
+                  SelectedItem="{Binding SelectStatus}"
                   Height="40" 
-                  VerticalAlignment="Top" 
-                  HorizontalAlignment="Left" 
-                  Width="140">
-            
-            <ComboBoxItem DataContext="0" IsSelected="True">All</ComboBoxItem>
-            <ComboBoxItem DataContext="1">1. NEW</ComboBoxItem>
-            <ComboBoxItem DataContext="2">2. ASSIGNED</ComboBoxItem>
-            <ComboBoxItem DataContext="3">3. DISCUSSION</ComboBoxItem>
-            <ComboBoxItem DataContext="4">4. COMPLETED</ComboBoxItem>
-            <ComboBoxItem DataContext="5">5. CLOSED</ComboBoxItem>
-        </ComboBox>
-        <ComboBox ItemsSource="{Binding Employees}" 
-                  SelectedItem="{Binding TasksSearchSelectEmployee}" 
-                  Margin="345,199,0,0" Height="40" 
-                  VerticalAlignment="Top" 
-                  HorizontalAlignment="Left" Width="140">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Surname}" 
-                               Grid.Column="0" 
-                               TextBlock.Foreground="Black"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
+                  VerticalAlignment="Top" Grid.Column="1">
+            <ComboBoxItem DataContext="5" IsSelected="True" >1. All</ComboBoxItem>
+            <ComboBoxItem DataContext="0">2. NEW</ComboBoxItem>
+            <ComboBoxItem DataContext="1">3. ASSIGNED</ComboBoxItem>
+            <ComboBoxItem DataContext="2">4. DISCUSSION</ComboBoxItem>
+            <ComboBoxItem DataContext="3">5. COMPLETED</ComboBoxItem>
+            <ComboBoxItem DataContext="4">6. CLOSED</ComboBoxItem>
         </ComboBox>
         <ListBox ItemsSource="{Binding Tags}" 
-                 SelectedItem="{Binding TasksSearchSelectTags}" 
-                 Margin="345,244,0,0" 
-                 Name="listTopics" Height="147" 
-                 VerticalAlignment="Top" 
-                 HorizontalAlignment="Left" 
-                 Width="140">
+                 ListBoxItem.Selected="{Binding Mode=TwoWay, Path=TasksSearchSelectTags}" 
+                 Margin="12,370,19,0" 
+                 Name="listTopics" Height="124" 
+                 VerticalAlignment="Top" Grid.Column="1">
             <ListBox.ItemTemplate>
                 <HierarchicalDataTemplate>
-                    <CheckBox Content="{Binding Name}"/>
+                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelectedCommand}"/>
                 </HierarchicalDataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <DataGrid MinWidth="240" 
                   IsReadOnly="True" 
                   ItemsSource="{Binding Employees}" 
+                  SelectedItem="{Binding SelectEmployee}"
                   Background="GreenYellow" 
-                  Margin="532,100,0,0" 
-                  HorizontalAlignment="Left" Width="200">
+                  Margin="19,100,21,0" Width="200" Grid.Column="2">
             <DataGrid.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -129,7 +89,7 @@
                   ItemsSource="{Binding Tags}" 
                   SelectedItem="{Binding SelectTag}" 
                   Background="GreenYellow" 
-                  Margin="796,100,0,0">
+                  Margin="2,100,0,0" Grid.Column="3">
             <DataGrid.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -144,11 +104,72 @@
                 </DataTemplate>
             </DataGrid.ItemTemplate>
         </DataGrid>
-        <Button Content="Change" 
-                Height="40" 
-                Margin="136,10,0,0" 
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Left" 
-                Width="126"/>
+        <Button Content="Change Task" 
+                Command="{Binding ChangeCommandTask}" 
+                Margin="12,10,20,0" Height="20" VerticalAlignment="Top"/>
+        <Button Content="Delete Employee" 
+                Command="{Binding DeteleCommandEmployee}" 
+                Height="20" 
+                Margin="19,10,21,0" 
+                VerticalAlignment="Top" Grid.Column="2"/>
+        <Button Content="Change Employee" 
+                Command="{Binding ChangeCommandEmployee}" 
+                Height="20" 
+                Margin="19,35,21,0" 
+                VerticalAlignment="Top" Grid.Column="2"/>
+        <Button Content="Create Employee" 
+                Command="{Binding CreateCommandEmployee}" 
+                Height="20" 
+                Margin="19,60,21,0" 
+                VerticalAlignment="Top" Grid.Column="2"/>
+        <Button Content="Delete Tag" 
+                Command="{Binding DeteleCommandTag}" 
+            Height="20" 
+            Margin="16,10,15,0" 
+            VerticalAlignment="Top" Grid.Column="3"/>
+        <Button Content="Change Tag" 
+                Command="{Binding ChangeCommandTag}" 
+            Height="20" 
+            Margin="16,35,15,0" 
+            VerticalAlignment="Top" Grid.Column="3"/>
+        <Button Content="Create Tag" 
+                Command="{Binding CreateCommandTag}" 
+            Height="20" 
+            Margin="16,60,15,0" 
+            VerticalAlignment="Top" Grid.Column="3"/>
+        <Button Grid.Column="1" 
+                Command="{Binding SearchTaskCommand}"
+                Content="Search tasks" 
+                Height="20" Margin="12,35,10,0" 
+                VerticalAlignment="Top"/>
+        <Button Grid.Column="1" 
+                Command="{Binding ResetSearchCommand}"
+                Content="Reset Search" 
+                Height="20" 
+                Margin="12,60,10,0" 
+                VerticalAlignment="Top"/>
+        <TextBox Grid.Column="1" 
+                 Height="18" 
+                 Margin="12,120,19,0" 
+                 TextWrapping="Wrap" 
+                 Text="{Binding NameTaskSearch}" 
+                 VerticalAlignment="Top"/>
+        <TextBox Grid.Column="1" 
+                 Height="55"
+                 Margin="12,158,19,0" 
+                 TextWrapping="Wrap" 
+                 VerticalAlignment="Top" 
+                 Text="{Binding DescriptionTaskSearch}"
+                 />
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Height="19" Margin="12,101,0,0" TextWrapping="Wrap" Text="Name Task: " VerticalAlignment="Top" Width="140"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Height="19" Margin="12,138,0,0" TextWrapping="Wrap" Text="Description Task: " VerticalAlignment="Top" Width="140"/>
+        <DataGrid 
+            Grid.Column="1" 
+            Height="102" 
+            Margin="12,263,19,0" 
+            VerticalAlignment="Top" 
+            ItemsSource="{Binding EmployeesSearch}"
+            SelectedItem="{Binding TasksSearchSelectEmployee}"
+            IsReadOnly="True"/>
     </Grid>
 </Window>
