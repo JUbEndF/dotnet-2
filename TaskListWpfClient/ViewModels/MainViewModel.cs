@@ -9,6 +9,7 @@ using System;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Data;
+using TaskListWpfClient.Models;
 
 namespace TaskListWpfClient.ViewModels
 {
@@ -17,7 +18,7 @@ namespace TaskListWpfClient.ViewModels
         public ComboBoxItem SelectStatus { get; set; } = new() { DataContext = "5"};
         public ObservableCollection<EmployeeProto> EmployeesSearch { get; set; } = new();
         public EmployeeProto TasksSearchSelectEmployee { get; set; } = new();
-        public ObservableCollection<Pair<TagProto, bool>> TasksSearchSelectTags { get; set; } = new();
+        public ObservableCollection<CheckedTag> TasksSearchSelectTags { get; set; } = new();
         public string NameTaskSearch { get; set; } = string.Empty;
         public string DescriptionTaskSearch { get; set; } = string.Empty;
 
@@ -88,9 +89,9 @@ namespace TaskListWpfClient.ViewModels
         {
             var tags = new ObservableCollection<TagProto>();
             foreach (var item in TasksSearchSelectTags)
-                if (item.)tags.Add(item);
-            if(TasksSearchSelectTags.Count != 0)
-                return new ObservableCollection<TaskProto>(list.Where(obj => obj.Tags.ListTag.Intersect().ToList().Count != 0));
+                if(item.Selected != false)tags.Add(item.Tag);
+            if(tags.Count != 0)
+                return new ObservableCollection<TaskProto>(list.Where(obj => obj.Tags.ListTag.Intersect(tags).ToList().Count != 0));
             return list;
         }
 
@@ -136,8 +137,6 @@ namespace TaskListWpfClient.ViewModels
             foreach (var item in Tasks)
                 TasksRelevant.Add(item);
         }
-
-
 
         public ObservableCollection<TaskProto> EmployeeSelectionChanged(ObservableCollection<TaskProto> tasks, EmployeeProto SearchSelectEmployee)
         {
@@ -230,8 +229,12 @@ namespace TaskListWpfClient.ViewModels
         {
             var allTag = Client.GetAllTag(new NullRequest { });
             Tags.Clear();
+            TasksSearchSelectTags.Clear();
             foreach (var tag in allTag.Tagslist.ListTag)
+            {
                 Tags.Add(tag);
+                TasksSearchSelectTags.Add(new() { Tag = tag});
+            }
         }   
     }
 }

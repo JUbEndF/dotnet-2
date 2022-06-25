@@ -50,15 +50,18 @@
             <ComboBoxItem DataContext="3">5. COMPLETED</ComboBoxItem>
             <ComboBoxItem DataContext="4">6. CLOSED</ComboBoxItem>
         </ComboBox>
-        <ListBox ItemsSource="{Binding Tags}" 
-                 ListBoxItem.Selected="{Binding Mode=TwoWay, Path=TasksSearchSelectTags}" 
+        <ListBox ItemsSource="{Binding TasksSearchSelectTags}" 
                  Margin="12,370,19,0" 
                  Name="listTopics" Height="124" 
                  VerticalAlignment="Top" Grid.Column="1">
             <ListBox.ItemTemplate>
-                <HierarchicalDataTemplate>
-                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelectedCommand}"/>
-                </HierarchicalDataTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <CheckBox  
+                            IsChecked="{Binding Path=Selected}"
+                            Content="{Binding Path=Tag.Name}"/>
+                    </StackPanel>
+                </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <DataGrid MinWidth="240" 
