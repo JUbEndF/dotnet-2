@@ -68,13 +68,10 @@ namespace TaskListWpfClient.ViewModels
 
         private void UpdateDatabaseTask()
         {
-            App.Current.MainWindow.Dispatcher.Invoke(new Action(
-            delegate ()
-            {
-                Tasks.Clear();
-                foreach (var task in Client.GetAllTask(new NullRequest { }).Taskslist.List)
-                    Tasks.Add(task);
-            }));
+            Tasks.Clear();
+            var allTasks = Client.GetAllTask(new NullRequest());
+            foreach (var task in allTasks.Taskslist.List)
+                Tasks.Add(task);
             TasksRelevant = Tasks;
         }
 

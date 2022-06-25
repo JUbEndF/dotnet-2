@@ -197,7 +197,7 @@ namespace TaskListGrpcServer.Services
                 {
                     taskListReply.List.Add(task.ToProto());
                 }
-                return Task.FromResult(new ListTaskReply { Taskslist = taskListReply, Success = true });
+                return Task.FromResult(new ListTaskReply { Taskslist = taskListReply, Success = true } );
             }
             catch (Exception)
             {
