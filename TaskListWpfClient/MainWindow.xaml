@@ -5,7 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodel="clr-namespace:TaskListWpfClient.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="514" MinWidth="1064" Height="417" Width="787">
+        Title="Task list" 
+        MinHeight="514" 
+        MinWidth="1064" 
+        Height="417" 
+        Width="787"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
 
     </Window.Resources>
@@ -22,9 +27,9 @@
                   IsReadOnly="True" 
                   SelectedItem="{Binding SelectTask}" 
                   Background="GreenYellow" 
-                  Margin="0,100,7,0"/>
+                  Margin="10,100,20,2"/>
         <Button Content="Delete Task" 
-                Margin="12,35,20,0" 
+                Margin="12,10,20,0" 
                 Command="{Binding DeteleCommandTask}" 
                 Height="20" 
                 VerticalAlignment="Top"/>
@@ -39,7 +44,7 @@
                 Margin="12,10,10,0" 
                 Command="{Binding UpdateCommand}" 
                 Height="20" VerticalAlignment="Top" Grid.Column="1"/>
-        <ComboBox Margin="12,218,19,0" 
+        <ComboBox Margin="12,218,10,0" 
                   SelectedItem="{Binding SelectStatus}"
                   Height="40" 
                   VerticalAlignment="Top" Grid.Column="1">
@@ -51,7 +56,7 @@
             <ComboBoxItem DataContext="4">6. CLOSED</ComboBoxItem>
         </ComboBox>
         <ListBox ItemsSource="{Binding TasksSearchSelectTags}" 
-                 Margin="12,370,19,0" 
+                 Margin="12,370,10,0" 
                  Name="listTopics" Height="124" 
                  VerticalAlignment="Top" Grid.Column="1">
             <ListBox.ItemTemplate>
@@ -69,7 +74,7 @@
                   ItemsSource="{Binding Employees}" 
                   SelectedItem="{Binding SelectEmployee}"
                   Background="GreenYellow" 
-                  Margin="19,100,21,0" Width="200" Grid.Column="2">
+                  Margin="19,100,21,0" Grid.Column="2">
             <DataGrid.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -92,7 +97,7 @@
                   ItemsSource="{Binding Tags}" 
                   SelectedItem="{Binding SelectTag}" 
                   Background="GreenYellow" 
-                  Margin="2,100,0,0" Grid.Column="3">
+                  Margin="16,100,15,0" Grid.Column="3">
             <DataGrid.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -109,7 +114,7 @@
         </DataGrid>
         <Button Content="Change Task" 
                 Command="{Binding ChangeCommandTask}" 
-                Margin="12,10,20,0" Height="20" VerticalAlignment="Top"/>
+                Margin="12,35,20,0" Height="20" VerticalAlignment="Top"/>
         <Button Content="Delete Employee" 
                 Command="{Binding DeteleCommandEmployee}" 
                 Height="20" 
@@ -153,13 +158,13 @@
                 VerticalAlignment="Top"/>
         <TextBox Grid.Column="1" 
                  Height="18" 
-                 Margin="12,120,19,0" 
+                 Margin="12,120,10,0" 
                  TextWrapping="Wrap" 
                  Text="{Binding NameTaskSearch}" 
                  VerticalAlignment="Top"/>
         <TextBox Grid.Column="1" 
                  Height="55"
-                 Margin="12,158,19,0" 
+                 Margin="12,158,10,0" 
                  TextWrapping="Wrap" 
                  VerticalAlignment="Top" 
                  Text="{Binding DescriptionTaskSearch}"
@@ -169,7 +174,7 @@
         <DataGrid 
             Grid.Column="1" 
             Height="102" 
-            Margin="12,263,19,0" 
+            Margin="12,263,10,0" 
             VerticalAlignment="Top" 
             ItemsSource="{Binding EmployeesSearch}"
             SelectedItem="{Binding TasksSearchSelectEmployee}"

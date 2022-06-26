@@ -1,30 +1,24 @@
-﻿using System.ComponentModel;
-using TaskListGrpcServer.Protos;
+﻿using TaskListGrpcServer.Protos;
 
 namespace TaskListWpfClient.Models
 {
-    public class CheckedTag : INotifyPropertyChanged
+    public class CheckedTag
     {
-        private bool selected;
-        private TagProto tag;
+        private bool _selected;
+        public TagProto Tag { get; set; }
+
+        public CheckedTag(TagProto tag)
+        {
+            Tag = tag;
+        }
 
         public bool Selected
         {
-            get { return selected; }
+            get { return _selected; }
             set
             {
-                selected = value;
+                _selected = value;
             }
         }
-        public TagProto Tag
-        {
-            get { return tag; }
-            set
-            {
-                tag = value;
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

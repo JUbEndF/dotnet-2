@@ -1,5 +1,4 @@
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TaskListGrpcServer.Models;
@@ -198,7 +197,7 @@ namespace TaskListGrpcServer.Services
                 {
                     taskListReply.List.Add(task.ToProto());
                 }
-                return Task.FromResult(new ListTaskReply { Taskslist = taskListReply, Success = true } );
+                return Task.FromResult(new ListTaskReply { Taskslist = taskListReply, Success = true });
             }
             catch (Exception)
             {

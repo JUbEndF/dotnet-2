@@ -1,21 +1,18 @@
 ﻿using Grpc.Net.Client;
 using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using TaskListGrpcServer.Protos;
-using TaskListGrpcServer.Models;
-using System;
-using System.Windows.Threading;
 using System.Windows.Controls;
-using System.Windows.Data;
+using TaskListGrpcServer.Protos;
 using TaskListWpfClient.Models;
 
 namespace TaskListWpfClient.ViewModels
 {
-    public sealed class MainViewModel
+    public class MainViewModel
     {
-        public ComboBoxItem SelectStatus { get; set; } = new() { DataContext = "5"};
+        public ComboBoxItem SelectStatus { get; set; } = new() { DataContext = "5" };
         public ObservableCollection<EmployeeProto> EmployeesSearch { get; set; } = new();
         public EmployeeProto TasksSearchSelectEmployee { get; set; } = new();
         public ObservableCollection<CheckedTag> TasksSearchSelectTags { get; set; } = new();
@@ -46,8 +43,6 @@ namespace TaskListWpfClient.ViewModels
         public ReactiveCommand<Unit, Unit> ChangeCommandTag { get; }
         public ReactiveCommand<Unit, Unit> SearchTaskCommand { get; }
         public ReactiveCommand<Unit, Unit> ResetSearchCommand { get; }
-        public ReactiveCommand<Unit, Unit> IsSelectedCommand { get; }
-
 
         public MainViewModel()
         {
@@ -63,18 +58,12 @@ namespace TaskListWpfClient.ViewModels
             ChangeCommandTag = ReactiveCommand.Create(ChangeTag);
             SearchTaskCommand = ReactiveCommand.Create(SearchTask);
             ResetSearchCommand = ReactiveCommand.Create(ResetSearch);
-            IsSelectedCommand = ReactiveCommand.Create(IsSelected);
-            UpdateDatabase();
-        }
 
-        public void IsSelected()
-        {
-            
+            UpdateDatabase();
         }
 
         public void SearchTask()
         {
-            UpdateDatabase();
             var search = NameСheck(Tasks);
             search = StatusСheck(search);
             search = DescriptionСheck(search);
@@ -89,15 +78,15 @@ namespace TaskListWpfClient.ViewModels
         {
             var tags = new ObservableCollection<TagProto>();
             foreach (var item in TasksSearchSelectTags)
-                if(item.Selected != false)tags.Add(item.Tag);
-            if(tags.Count != 0)
+                if (item.Selected != false) tags.Add(item.Tag);
+            if (tags.Count != 0)
                 return new ObservableCollection<TaskProto>(list.Where(obj => obj.Tags.ListTag.Intersect(tags).ToList().Count != 0));
             return list;
         }
 
         public ObservableCollection<TaskProto> NameСheck(ObservableCollection<TaskProto> list)
         {
-            if(NameTaskSearch != String.Empty)
+            if (NameTaskSearch != String.Empty)
                 return new ObservableCollection<TaskProto>(list.Where(obj => obj.NameTask.Contains(NameTaskSearch) == true));
             return list;
         }
@@ -140,60 +129,91 @@ namespace TaskListWpfClient.ViewModels
 
         public ObservableCollection<TaskProto> EmployeeSelectionChanged(ObservableCollection<TaskProto> tasks, EmployeeProto SearchSelectEmployee)
         {
-            if(SearchSelectEmployee != null)
+            if (SearchSelectEmployee != null)
                 return new ObservableCollection<TaskProto>(tasks.Where(obj => obj.Executor.Surname == SearchSelectEmployee.Surname));
             return tasks;
         }
 
         public void ChangeEmployee()
         {
-
+            if (SelectEmployee.Id != 0)
+            {
+                EmployeeWindow changeEmployee = new(this, SelectEmployee);
+                App.Current.MainWindow.Hide();
+                changeEmployee.Show();
+            }
         }
+
 
         public void ChangeTask()
         {
-
+            if (SelectTask.Id != 0)
+            {
+                TaskWindow createTask = new(this, Employees, Tags, SelectTask);
+                App.Current.MainWindow.Hide();
+                createTask.Show();
+            }
         }
 
         public void ChangeTag()
         {
-
+            if (SelectTag.Id != 0)
+            {
+                TagWindow changeTag = new(this, SelectTag);
+                App.Current.MainWindow.Hide();
+                changeTag.Show();
+            }
         }
 
         public void CreateTask()
         {
-
+            TaskWindow createTask = new(this, Employees, Tags);
+            App.Current.MainWindow.Hide();
+            createTask.Show();
         }
 
         public void CreateEmployee()
         {
-
+            EmployeeWindow changeEmployee = new(this);
+            App.Current.MainWindow.Hide();
+            changeEmployee.Show();
         }
 
         public void CreateTag()
         {
-
+            TagWindow createTask = new(this);
+            App.Current.MainWindow.Hide();
+            createTask.Show();
         }
 
         private void DeleteTask()
         {
-            Client.DeleteTask(SelectTask);
-            UpdateDatabase();
+            if (SelectTask != null)
+            {
+                Client.DeleteTask(SelectTask);
+                UpdateDatabase();
+            }
         }
 
         private void DeleteTag()
         {
-            Client.DeleteTag(SelectTag);
-            UpdateDatabase();
+            if (SelectTag != null)
+            {
+                Client.DeleteTag(SelectTag);
+                UpdateDatabase();
+            }
         }
 
         private void DeleteEmployee()
         {
-            Client.DeleteEmployee(SelectEmployee);
-            UpdateDatabase();
+            if (SelectEmployee != null)
+            {
+                Client.DeleteEmployee(SelectEmployee);
+                UpdateDatabase();
+            }
         }
 
-        private void UpdateDatabase()
+        public void UpdateDatabase()
         {
             UpdateDatabaseTask();
             UpdateDatabaseEmployee();
@@ -204,7 +224,7 @@ namespace TaskListWpfClient.ViewModels
         {
             Tasks.Clear();
             var allTasks = Client.GetAllTask(new NullRequest());
-            if(allTasks.Success == true)
+            if (allTasks.Success == true)
                 foreach (var task in allTasks.Taskslist.List)
                     Tasks.Add(task);
             TasksRelevant.Clear();
@@ -233,8 +253,38 @@ namespace TaskListWpfClient.ViewModels
             foreach (var tag in allTag.Tagslist.ListTag)
             {
                 Tags.Add(tag);
-                TasksSearchSelectTags.Add(new() { Tag = tag});
+                TasksSearchSelectTags.Add(new(tag));
             }
-        }   
+        }
+
+        public void AddTask(TaskProto taskProto)
+        {
+            Client.AddTask(taskProto);
+        }
+
+        public void UpdateTask(TaskProto taskProto)
+        {
+            Client.UpdateTask(taskProto);
+        }
+
+        public void AddTag(TagProto tagProto)
+        {
+            Client.AddTag(tagProto);
+        }
+
+        public void UpdateTag(TagProto tagProto)
+        {
+            Client.UpdateTag(tagProto);
+        }
+
+        public void AddEmployee(EmployeeProto employee)
+        {
+            Client.AddEmployee(employee);
+        }
+
+        public void UpdateEmployee(EmployeeProto employee)
+        {
+            Client.UpdateEmployee(employee);
+        }
     }
 }
