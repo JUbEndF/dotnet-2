@@ -8,8 +8,8 @@
         Title="Task list" 
         MinHeight="514" 
         MinWidth="1064" 
-        Height="417" 
-        Width="787"
+        Height="514" 
+        Width="1064"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
 

@@ -7,7 +7,11 @@
         mc:Ignorable="d"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        Title="TagWindow" MinHeight="190" MinWidth="386" Height="158" Width="343">
+        Title="TagWindow" 
+        MinHeight="190" 
+        MinWidth="386" 
+        Height="190" 
+        Width="386">
     <Grid Background="Beige">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="92*"/>

@@ -9,8 +9,8 @@
         Title="EmployeeWindow" 
         MinHeight="180" 
         MinWidth="400" 
-        Height="170" 
-        Width="395"
+        Height="180" 
+        Width="400"
         WindowStartupLocation="CenterScreen">
     <Grid Background="Beige"  MinHeight="180" MinWidth="400" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
