@@ -80,6 +80,36 @@ namespace TaskListGrpcServer.Repositories
             return true;
         }
 
+        public async void RemoveEmployee(Employee employee)
+        {
+            await Deserialize();
+            foreach (var item in _tasks!)
+            {
+                await UpdateAsync(item.DeleteEmployee(employee));
+            }
+            await SerializeAsync();
+        }
+
+        public async void ChangeEmployee(Employee employee)
+        {
+            await Deserialize();
+            foreach (var item in _tasks!)
+            {
+                await UpdateAsync(item.ChangeEmployee(employee));
+            }
+            await SerializeAsync();
+        }
+
+        public async void ChangeTag(Tag tag)
+        {
+            await Deserialize();
+            foreach (var item in _tasks!)
+            {
+                await UpdateAsync(item.ChangeTag(tag));
+            }
+            await SerializeAsync();
+        }
+
         public async void RemoveTag(Tag tag)
         {
             await Deserialize();

@@ -122,7 +122,7 @@ namespace TaskListWpfClient.ViewModels
                 }
                 else
                 {
-                    taskProto.Executor = TasksSelectEmployee;
+                    taskProto.Executor = ModelTask.Executor;
                     if (ModelTask.Executor.Id != TasksSelectEmployee.Id)
                         taskProto.CurrentState = Status.Assigned;
                 }

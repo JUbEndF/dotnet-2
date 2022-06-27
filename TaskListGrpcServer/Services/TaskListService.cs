@@ -94,6 +94,7 @@ namespace TaskListGrpcServer.Services
             try
             {
                 _jsonEmployeeRepository.RemoveAtAsync(request.Id);
+                _jsonTaskRepository.RemoveEmployee(new(request));
             }
             catch
             {
@@ -212,6 +213,7 @@ namespace TaskListGrpcServer.Services
             try
             {
                 await _jsonEmployeeRepository.UpdateAsync(new(request));
+                _jsonTaskRepository.ChangeEmployee(new(request));
             }
             catch
             {
@@ -231,6 +233,7 @@ namespace TaskListGrpcServer.Services
             try
             {
                 await _jsonTagRepository.UpdateAsync(new(request));
+                _jsonTaskRepository.ChangeTag(new(request));
             }
             catch
             {

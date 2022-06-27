@@ -85,11 +85,36 @@ namespace TaskListGrpcServer.Models
             };
         }
 
+        public TaskElement ChangeEmployee(Employee employee)
+        {
+            if(ExecutorTask.Id != 0 && employee.Id == ExecutorTask.Id)
+            {
+                ExecutorTask.Name = employee.Name;
+                ExecutorTask.Surname = employee.Surname;
+            }
+            return this;
+        }
+
+        public TaskElement ChangeTag(Tag tag)
+        {
+            var index = ListTags.FindIndex(obj => obj.Id == tag.Id);
+            if (index != -1)
+                ListTags[index].TagName = tag.TagName;
+            return this;
+        }
+
         public TaskElement DeleteTag(Tag tag)
         {
             var index = ListTags.FindIndex(obj => obj.Id == tag.Id);
             if(index != -1)
                 ListTags.RemoveAt(index);
+            return this;
+        }
+
+        public TaskElement DeleteEmployee(Employee employee)
+        {
+            if (employee.Id == ExecutorTask.Id)
+                ExecutorTask = new();
             return this;
         }
 
