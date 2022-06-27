@@ -28,7 +28,6 @@ namespace TaskListWpfClient.ViewModels
                 MessageBox.Show("The name string cannot be empty");
                 return;
             }
-
             try{
                 MainWindow mainWindow = new(ConnectionAddress);
                 mainWindow.Show();
