@@ -115,6 +115,7 @@ namespace TaskListGrpcServer.Services
             try
             {
                 _jsonTagRepository.RemoveAtAsync(request.Id);
+                _jsonTaskRepository.RemoveTag(new(request));
             }
             catch
             {

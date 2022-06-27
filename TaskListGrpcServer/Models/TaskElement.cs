@@ -85,6 +85,14 @@ namespace TaskListGrpcServer.Models
             };
         }
 
+        public TaskElement DeleteTag(Tag tag)
+        {
+            var index = ListTags.FindIndex(obj => obj.Id == tag.Id);
+            if(index != -1)
+                ListTags.RemoveAt(index);
+            return this;
+        }
+
         public TagsProto TagsToProto()
         {
             var tags = new TagsProto();

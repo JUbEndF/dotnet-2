@@ -252,9 +252,9 @@ namespace TaskListWpfClient.ViewModels
             }
         }
 
-        public void AddTask(TaskProto taskProto)
+        public TaskProtoReply AddTask(TaskProto taskProto)
         {
-            Client.AddTask(taskProto);
+            return Client.AddTask(taskProto);
         }
 
         public void UpdateTask(TaskProto taskProto)

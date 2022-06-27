@@ -119,5 +119,15 @@ namespace TaskListGrpcServer.Repositories
                 _semaphoreSlim.Release();
             }
         }
+
+        public async Task<bool> CheckEmployeeAsync(int id)
+        {
+            await DeserializeAsync();
+            if (_employee!.FindIndex(f => f.Id == id) != -1)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

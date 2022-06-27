@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using TaskListGrpcServer.Protos;
 using TaskListWpfClient.Models;
+using System.Linq;
 
 namespace TaskListWpfClient.ViewModels
 {
@@ -40,7 +41,30 @@ namespace TaskListWpfClient.ViewModels
             }
         }
 
-        public TaskViewModel(MainViewModel mainViewModel, ObservableCollection<EmployeeProto> employees, ObservableCollection<TagProto> allTag, TaskProto taskProto)
+        public void TegFromTask(ObservableCollection<TagProto> allTag, TaskProto taskProto)
+        {
+            TasksSelectTags.Clear();
+            if (taskProto.Tags.ListTag != null && allTag.Count != 0)
+            {
+                foreach (var tag in allTag)
+                {
+                    if (taskProto.Tags.ListTag.ToList().FindIndex(obj => obj.Id == tag.Id) != -1)
+                        TasksSelectTags.Add(new(tag) { Selected = true});
+                    else TasksSelectTags.Add(new(tag) { Selected = false });
+                }
+            }
+            else
+            {
+                foreach (var tag in allTag)
+                {
+                    TasksSelectTags.Add(new(tag));
+                }
+            }
+        }
+
+        public TaskViewModel(MainViewModel mainViewModel, 
+            ObservableCollection<EmployeeProto> employees, 
+            ObservableCollection<TagProto> allTag, TaskProto taskProto)
         {
             _mainViewModel = mainViewModel;
             ModelTask = taskProto;
@@ -48,10 +72,7 @@ namespace TaskListWpfClient.ViewModels
             CancelCommand = ReactiveCommand.Create(Cancel);
             Name = taskProto.NameTask;
             Description = taskProto.TaskDescription;
-            foreach (var tag in allTag)
-            {
-                TasksSelectTags.Add(new(tag));
-            }
+            TegFromTask(allTag, taskProto);
             foreach (var employee in employees)
             {
                 Employees.Add(employee.Clone());
@@ -92,9 +113,26 @@ namespace TaskListWpfClient.ViewModels
                     _ => ModelTask.CurrentState,
                 }
             };
-            if (TasksSelectEmployee == null)
-                taskProto.Executor = ModelTask.Executor;
-            else taskProto.Executor = TasksSelectEmployee;
+            if (TasksSelectEmployee.Id == 0)
+            {
+                if (ModelTask.Executor == null)
+                {
+                    taskProto.Executor = new();
+                    taskProto.CurrentState = Status.New;
+                }
+                else
+                {
+                    taskProto.Executor = TasksSelectEmployee;
+                    if (ModelTask.Executor.Id != TasksSelectEmployee.Id)
+                        taskProto.CurrentState = Status.Assigned;
+                }
+            }
+            else
+            {
+                taskProto.Executor = TasksSelectEmployee;
+                if (ModelTask.Executor == null || ModelTask.Executor.Id != TasksSelectEmployee.Id)
+                    taskProto.CurrentState = Status.Assigned;
+            }
             taskProto.Id = ModelTask.Id;
             var tags = new TagsProto();
             foreach (var tag in TasksSelectTags)
@@ -113,7 +151,9 @@ namespace TaskListWpfClient.ViewModels
                 return;
             }
             if (ModelTask.Id == 0)
-                _mainViewModel.AddTask(CreateTask());
+            {
+                var result = _mainViewModel.AddTask(CreateTask());
+            }
             else _mainViewModel.UpdateTask(CreateTask());
             _mainViewModel.UpdateDatabase();
             foreach (Window window in Application.Current.Windows)
@@ -122,12 +162,9 @@ namespace TaskListWpfClient.ViewModels
                 {
                     window.Show();
                 }
-            }
-            foreach (Window window in Application.Current.Windows)
-            {
                 if (window.GetType() == typeof(TaskWindow))
                 {
-                    window.Close();
+                    window.Hide();
                 }
             }
         }

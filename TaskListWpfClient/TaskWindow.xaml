@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:TaskListWpfClient"
         mc:Ignorable="d"
         WindowStyle="None"
-        Title="TaskWindow" MinHeight="569" MinWidth="514"
-        Background="Beige" Height="569" Width="514"
+        Title="TaskWindow" MinHeight="569" MinWidth="520"
+        Background="Beige" Height="569" Width="520"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>

@@ -120,5 +120,15 @@ namespace TaskListGrpcServer.Repositories
                 _semaphoreSlim.Release();
             }
         }
+
+        public async Task<bool> CheckTagAsync(int id)
+        {
+            await DeserializeAsync();
+            if (_tags!.FindIndex(f => f.Id == id) != -1)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

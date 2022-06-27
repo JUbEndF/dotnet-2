@@ -80,6 +80,16 @@ namespace TaskListGrpcServer.Repositories
             return true;
         }
 
+        public async void RemoveTag(Tag tag)
+        {
+            await Deserialize();
+            foreach(var item in _tasks!)
+            {
+                await UpdateAsync(item.DeleteTag(tag));
+            }
+            await SerializeAsync();
+        }
+
         private async Task Deserialize()
         {
             await _semaphoreSlim.WaitAsync();
@@ -119,6 +129,16 @@ namespace TaskListGrpcServer.Repositories
             {
                 _semaphoreSlim.Release();
             }
+        }
+
+        public async Task<bool> CheckTaskAsync(int id)
+        {
+            await Deserialize();
+            if (_tasks!.FindIndex(f => f.Id == id) != -1)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

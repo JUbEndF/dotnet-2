@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskListWpfClient"
         mc:Ignorable="d"
-        Title="Connection" MinHeight="140" MinWidth="292"
-        Height="140" Width="292"
-        Background="Beige">
+        Title="Connection" MinHeight="200" MinWidth="292"
+        Height="200" Width="292"
+        Background="Beige"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="189*"/>
