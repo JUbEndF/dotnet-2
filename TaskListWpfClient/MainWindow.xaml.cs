@@ -8,10 +8,10 @@ namespace TaskListWpfClient
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(string address)
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            DataContext = new MainViewModel(address);
         }
     }
 }

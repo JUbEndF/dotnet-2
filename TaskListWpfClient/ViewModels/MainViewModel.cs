@@ -29,7 +29,7 @@ namespace TaskListWpfClient.ViewModels
 
         public ObservableCollection<TagProto> Tags { get; set; } = new();
 
-        private static readonly TaskList.TaskListClient Client = new(GrpcChannel.ForAddress(Properties.Settings.Default.Host));
+        private readonly TaskList.TaskListClient Client; 
 
         public ReactiveCommand<Unit, Unit> UpdateCommand { get; }
         public ReactiveCommand<Unit, Unit> ChangeCommandTask { get; }
@@ -44,8 +44,9 @@ namespace TaskListWpfClient.ViewModels
         public ReactiveCommand<Unit, Unit> SearchTaskCommand { get; }
         public ReactiveCommand<Unit, Unit> ResetSearchCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(string address)
         {
+            Client = new(GrpcChannel.ForAddress(address));
             UpdateCommand = ReactiveCommand.Create(UpdateDatabase);
             DeteleCommandTask = ReactiveCommand.Create(DeleteTask);
             CreateCommandTask = ReactiveCommand.Create(CreateTask);
@@ -100,21 +101,15 @@ namespace TaskListWpfClient.ViewModels
 
         public ObservableCollection<TaskProto> StatusСheck(ObservableCollection<TaskProto> list)
         {
-            switch (int.Parse((string)SelectStatus.DataContext))
+            return int.Parse((string)SelectStatus.DataContext) switch
             {
-                case 0:
-                    return new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.New));
-                case 1:
-                    return new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Assigned));
-                case 2:
-                    return new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Discussion));
-                case 3:
-                    return new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Completed));
-                case 4:
-                    return new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Closed));
-                default:
-                    return list;
-            }
+                0 => new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.New)),
+                1 => new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Assigned)),
+                2 => new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Discussion)),
+                3 => new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Completed)),
+                4 => new ObservableCollection<TaskProto>(list.Where(obj => obj.CurrentState == Status.Closed)),
+                _ => list,
+            };
         }
 
         public void ResetSearch()

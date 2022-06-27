@@ -47,13 +47,16 @@ namespace TaskListWpfClient.ViewModels
             _mainViewModel.UpdateDatabase();
             foreach (Window window in Application.Current.Windows)
             {
-                if (window.GetType() == typeof(EmployeeWindow))
-                {
-                    window.Hide();
-                }
                 if (window.GetType() == typeof(MainWindow))
                 {
                     window.Show();
+                }
+            }
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(EmployeeWindow))
+                {
+                    window.Close();
                 }
             }
         }
@@ -62,13 +65,16 @@ namespace TaskListWpfClient.ViewModels
         {
             foreach (Window window in Application.Current.Windows)
             {
-                if (window.GetType() == typeof(EmployeeWindow))
-                {
-                    window.Hide();
-                }
                 if (window.GetType() == typeof(MainWindow))
                 {
                     window.Show();
+                }
+            }
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(EmployeeWindow))
+                {
+                    window.Close();
                 }
             }
         }
