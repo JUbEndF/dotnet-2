@@ -69,12 +69,12 @@ namespace TaskListGrpcServer.Repositories
             await SerializeAsync();
         }
 
-        public async Task<bool> UpdateAsync(TaskElement executorUpdate)
+        public async Task<bool> UpdateAsync(TaskElement taskUpdate)
         {
             await Deserialize();
-            var index = _tasks!.FindIndex(obj => obj.Id == executorUpdate.Id);
+            var index = _tasks!.FindIndex(obj => obj.Id == taskUpdate.Id);
             if (index != -1)
-                _tasks[index] = executorUpdate;
+                _tasks[index] = taskUpdate;
             else return false;
             await SerializeAsync();
             return true;
@@ -146,7 +146,7 @@ namespace TaskListGrpcServer.Repositories
             }
         }
 
-        private async Task SerializeAsync()
+        private async Task SerializeAsync()//запись в файл
         {
             await _semaphoreSlim.WaitAsync();
             try

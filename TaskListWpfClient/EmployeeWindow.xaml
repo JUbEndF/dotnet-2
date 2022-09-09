@@ -45,7 +45,7 @@
             Height="20" 
             Margin="10,70,7,0" 
             TextWrapping="Wrap" 
-            Text="Employee Sename" 
+            Text="Employee Surname" 
             VerticalAlignment="Top"/>
         <TextBox 
             Height="22" 

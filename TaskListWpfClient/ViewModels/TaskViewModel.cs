@@ -41,7 +41,7 @@ namespace TaskListWpfClient.ViewModels
             }
         }
 
-        public void TegFromTask(ObservableCollection<TagProto> allTag, TaskProto taskProto)
+        public void TagFromTask(ObservableCollection<TagProto> allTag, TaskProto taskProto)
         {
             TasksSelectTags.Clear();
             if (taskProto.Tags.ListTag != null && allTag.Count != 0)
@@ -72,7 +72,7 @@ namespace TaskListWpfClient.ViewModels
             CancelCommand = ReactiveCommand.Create(Cancel);
             Name = taskProto.NameTask;
             Description = taskProto.TaskDescription;
-            TegFromTask(allTag, taskProto);
+            TagFromTask(allTag, taskProto);
             foreach (var employee in employees)
             {
                 Employees.Add(employee.Clone());

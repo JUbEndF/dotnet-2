@@ -87,7 +87,7 @@ namespace TaskListGrpcServer.Models
 
         public TaskElement ChangeEmployee(Employee employee)
         {
-            if(ExecutorTask.Id != 0 && employee.Id == ExecutorTask.Id)
+            if(ExecutorTask.Id != 0 && employee.Id != ExecutorTask.Id)
             {
                 ExecutorTask.Name = employee.Name;
                 ExecutorTask.Surname = employee.Surname;

@@ -59,7 +59,6 @@ namespace TaskListWpfClient.ViewModels
             ChangeCommandTag = ReactiveCommand.Create(ChangeTag);
             SearchTaskCommand = ReactiveCommand.Create(SearchTask);
             ResetSearchCommand = ReactiveCommand.Create(ResetSearch);
-
             UpdateDatabase();
         }
 
@@ -138,7 +137,6 @@ namespace TaskListWpfClient.ViewModels
                 changeEmployee.Show();
             }
         }
-
 
         public void ChangeTask()
         {
