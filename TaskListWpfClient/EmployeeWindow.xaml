@@ -35,7 +35,7 @@
             Height="42" 
             VerticalAlignment="Top" Grid.Column="1"/>
         <TextBox 
-            Height="17" 
+            Height="23" 
             Margin="10,42,30,0" 
             TextWrapping="Wrap" 
             Text="{Binding Name}" 
@@ -48,8 +48,8 @@
             Text="Employee Sename" 
             VerticalAlignment="Top"/>
         <TextBox 
-            Height="17" 
-            Margin="10,95,30,0" 
+            Height="22" 
+            Margin="10,90,30,0" 
             TextWrapping="Wrap" 
             Text="{Binding Surname}" 
             VerticalAlignment="Top" 
